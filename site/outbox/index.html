@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:p="https://pagelove.org/1.0">
+<head><meta charset="UTF-8"><title>Outbox — ATS email relay</title></head>
+<body>
+<h1>Outbox</h1>
+<p>PUT a Postmark-shaped JSON payload to <code>/outbox/E-{id}.json</code> and this trigger relays it
+to Postmark server-side (with the ATS's Server API Token attached). Fire-and-forget; failures retried
+by Example Co with exponential backoff.</p>
+
+<div itemscope itemtype="https://pagelove.org/Trigger">
+  <meta itemprop="resource" content="/outbox/E-*.json">
+  <meta itemprop="method" content="PUT">
+  <div itemprop="action" itemscope itemtype="https://pagelove.org/HttpRequest">
+    <meta itemprop="url" content="https://api.postmarkapp.com/email">
+    <meta itemprop="method" content="POST">
+    <meta itemprop="content-type" content="application/json">
+    <div itemprop="header" itemscope itemtype="https://pagelove.org/Pair">
+      <meta itemprop="key" content="X-Postmark-Server-Token">
+      <meta itemprop="value" content>
+    </div>
+    <div itemprop="header" itemscope itemtype="https://pagelove.org/Pair">
+      <meta itemprop="key" content="Accept">
+      <meta itemprop="value" content="application/json">
+    </div>
+    <div itemprop="body" itemscope itemtype="https://pagelove.org/Sessel">
+      <script itemprop="source" type="text/sessel">
+        @schema Context url("https://pagelove.org/Context");
+        Context.request.body
+      </script>
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,3701 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Example Co · Hiring</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,400&amp;family=Inter+Tight:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+  /* ===== defensive hide (belt-and-braces): keeps data-only cells invisible
+     even if Example Co strips [hidden] during SSR composition ===== */
+  #roles-body td[itemprop="priority"],
+  #roles-body td[itemprop="location"],
+  #roles-body td[itemprop="slug"],
+  #roles-body td[itemprop="tldr"],
+  #roles-body td[itemprop="salary"],
+  #roles-body td[itemprop="notes"],
+  #roles-body td:has(> time[itemprop="targetStart"]) {
+    display: none !important;
+  }
+  #candidates-body td[itemprop="notes"],
+  #candidates-body td[itemprop="coverLetter"],
+  #candidates-body td[itemprop="cvLink"],
+  #candidates-body td[itemprop="coverLetterLink"],
+  #candidates-body td[itemprop="tags"],
+  #candidates-body td[itemprop="duplicateOf"] {
+    display: none !important;
+  }
+
+  :root {
+    --ink: #111111;
+    --ink-soft: #3d3d3d;
+    --ink-faint: #8a8a8a;
+    --rule: #e5e3de;
+    --paper: #faf8f4;
+    --paper-alt: #f3f0e9;
+    --accent: #c23616;
+
+    --s-sourced: #6b7fa8;
+    --s-applied: #4a6fa5;
+    --s-interview-1: #c48a24;
+    --s-interview-2: #a86d1c;
+    --s-interview-3: #7a4f0c;
+    --s-offer: #2d7a4f;
+    --s-hired: #1f5c3a;
+    --s-rejected: #8a3a3a;
+    --s-withdrew: #8a8a8a;
+    --s-duplicate: #6b6bc4;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter Tight', system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body { min-height: 100vh; padding: 48px 56px 96px; }
+
+  /* ============ HEADER ============ */
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 16px;
+  }
+
+  .brand {
+    font-family: 'Fraunces', serif;
+    font-weight: 300;
+    font-size: 13px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 8px;
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-size: 56px;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    color: var(--ink);
+  }
+  h1 em { font-style: italic; color: var(--accent); }
+
+  h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-size: 28px;
+    letter-spacing: -0.01em;
+    margin-bottom: 16px;
+  }
+
+  /* ============ TABS ============ */
+  nav.tabs {
+    display: flex;
+    gap: 24px;
+    align-items: flex-end;
+  }
+  nav.tabs a {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: var(--ink-faint);
+    text-decoration: none;
+    padding: 6px 0;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  nav.tabs a:hover { color: var(--ink); }
+  /* default active = candidates */
+  body:not(:has(.view:target)) nav.tabs a[href="#candidates"],
+  .view:target ~ nav.tabs a,
+  nav.tabs a.tab-active {
+    color: var(--ink);
+    border-bottom-color: var(--ink);
+  }
+
+  /* ============ VIEWS ============ */
+  .view { display: none; padding-top: 24px; }
+  .view:target { display: block; }
+  body:not(:has(.view:target)) #candidates { display: block; }
+
+  /* ============ CONTROLS ============ */
+  .controls {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 16px;
+    margin-bottom: 16px;
+    align-items: center;
+  }
+  .search-wrap { position: relative; }
+  .search-wrap::before {
+    content: "/";
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-faint);
+    background: var(--paper-alt);
+    padding: 2px 7px;
+    border-radius: 3px;
+    pointer-events: none;
+  }
+  input[type="text"], input[type="email"], input[type="url"], input[type="date"], select, textarea {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--rule);
+    padding: 10px 40px 10px 0;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  input:focus, select:focus, textarea:focus { border-bottom-color: var(--ink); }
+  textarea { resize: vertical; padding: 8px 0; }
+  select {
+    padding: 10px 28px 10px 0;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%238a8a8a' stroke-width='1.2'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0 center;
+    cursor: pointer;
+    min-width: 160px;
+  }
+
+  /* ============ BUTTONS ============ */
+  button {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    padding: 10px 18px;
+    background: transparent;
+    color: var(--ink);
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    letter-spacing: 0.02em;
+  }
+  .btn-primary {
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 2px;
+  }
+  .btn-primary:hover { background: var(--ink-soft); }
+  .btn-secondary {
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    color: var(--ink-soft);
+  }
+  .btn-secondary:hover { border-color: var(--ink); color: var(--ink); }
+  .btn-danger {
+    background: var(--accent);
+    color: var(--paper);
+    border-radius: 2px;
+  }
+  .btn-danger:hover { filter: brightness(0.92); }
+  .delete-btn {
+    font-size: 12px;
+    padding: 6px 12px;
+    border: 1px solid var(--rule);
+    border-radius: 2px;
+    color: var(--ink-soft);
+  }
+  .delete-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ============ PILLS ============ */
+  .pill-row, .pill-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+  }
+  .pill-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-faint);
+    margin-right: 4px;
+  }
+  .pill {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 12px;
+    font-weight: 400;
+    padding: 4px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--rule);
+    background: transparent;
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: all 0.12s;
+    letter-spacing: 0.01em;
+    line-height: 1.5;
+  }
+  .pill:hover { border-color: var(--ink); color: var(--ink); }
+  .pill.active {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+  .pill[data-priority="High"].active {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .pill.cancel-pill {
+    border-color: transparent;
+    color: var(--ink-faint);
+    padding: 4px 8px;
+  }
+  .pill.cancel-pill:hover { color: var(--accent); border-color: var(--rule); }
+
+  /* ============ KANBAN ============ */
+  .kanban-wrap { margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--rule); }
+  .kanban-wrap h3 {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-size: 18px;
+    margin-bottom: 16px;
+    color: var(--ink);
+  }
+  .kanban-wrap h3 .count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-faint);
+    margin-left: 8px;
+    letter-spacing: 0.04em;
+  }
+  .kanban {
+    display: grid;
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    gap: 8px;
+    padding-bottom: 8px;
+  }
+  .kanban-col {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+  }
+  @media (max-width: 1100px) {
+    .kanban { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  }
+  @media (max-width: 600px) {
+    .kanban { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  .kanban-col-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-soft);
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--rule);
+    gap: 4px;
+    min-width: 0;
+  }
+  .kanban-col-header > span:first-of-type, .kanban-col-header {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .kanban-col-header::before {
+    content: "";
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--dot, var(--ink-faint));
+    margin-right: 6px;
+  }
+  .kanban-col[data-stage="Sourced"]   { --dot: var(--s-sourced); }
+  .kanban-col[data-stage="Applied"]   { --dot: var(--s-applied); }
+  .kanban-col[data-stage="Interview 1"] { --dot: var(--s-interview-1); }
+  .kanban-col[data-stage="Interview 2"] { --dot: var(--s-interview-2); }
+  .kanban-col[data-stage="Interview 3"] { --dot: var(--s-interview-3); }
+  .kanban-col[data-stage="Offer"]     { --dot: var(--s-offer); }
+  .kanban-col[data-stage="Hired"]     { --dot: var(--s-hired); }
+  .kanban-col[data-stage="Rejected"]  { --dot: var(--s-rejected); }
+  .kanban-col[data-stage="Withdrew"]  { --dot: var(--s-withdrew); }
+  .kanban-col[data-stage="Duplicate"] { --dot: var(--s-duplicate); }
+  .kanban-col-header .count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-faint);
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+  .kanban-card {
+    display: block;
+    padding: 6px 8px;
+    background: var(--paper-alt);
+    border-radius: 3px;
+    text-decoration: none;
+    color: var(--ink);
+    font-size: 12px;
+    transition: background 0.12s;
+    border-left: 3px solid var(--rule);
+    min-width: 0;
+  }
+  .kanban-card:hover { background: #ece9e0; }
+  .kanban-card[data-priority="High"] { border-left-color: var(--accent); }
+  .kanban-card .card-name {
+    font-family: 'Fraunces', serif;
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    margin-bottom: 1px;
+    color: var(--ink);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .kanban-card .card-meta {
+    font-size: 10px;
+    color: var(--ink-faint);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .kanban-empty {
+    text-align: center;
+    padding: 24px 0;
+    font-size: 11px;
+    color: var(--ink-faint);
+    font-style: italic;
+  }
+  .role-jd {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--rule);
+  }
+  .role-jd .editable {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+  }
+  .role-jd .editable:not(:has(textarea, input)) {
+    cursor: text;
+    padding: 8px 0;
+    margin: -8px 0;
+    font-family: 'Fraunces', serif;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    white-space: pre-wrap;
+  }
+  .role-jd .editable:not(:has(textarea, input)):hover {
+    background: rgba(0,0,0,0.03);
+    border-radius: 2px;
+    padding: 8px 12px;
+    margin: -8px -12px;
+  }
+  .role-jd-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-faint);
+    margin-bottom: 8px;
+  }
+
+  /* ============ ROLE PUBLIC URL ============ */
+  .role-public-url {
+    margin: 24px 0 8px;
+    padding: 16px 20px;
+    background: var(--paper-alt);
+    border-radius: 4px;
+    border-left: 3px solid var(--accent);
+  }
+  .role-public-url .detail-label { margin-bottom: 8px; }
+  .public-url-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .public-url-link {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px dotted var(--ink-faint);
+    padding-bottom: 1px;
+    flex: 1 1 auto;
+    min-width: 200px;
+    word-break: break-all;
+  }
+  .public-url-link:hover { border-bottom-color: var(--accent); color: var(--accent); }
+  .copy-public-url-btn {
+    font-size: 12px;
+    padding: 6px 12px;
+    cursor: pointer;
+  }
+  .copy-public-url-btn.copied { background: var(--paper); border-color: var(--s-hired); color: var(--s-hired); }
+  .public-url-sub {
+    font-size: 11px;
+    color: var(--ink-faint);
+    margin-top: 8px;
+    font-style: italic;
+  }
+
+  /* ============ INLINE EDIT ============ */
+  .editable {
+    cursor: text;
+    border-radius: 2px;
+    padding: 2px 4px;
+    margin: -2px -4px;
+    transition: background 0.12s;
+    display: inline-block;
+    min-height: 1.5em;
+    min-width: 80px;
+  }
+  .editable:hover { background: rgba(0,0,0,0.04); }
+  .editable.saving { opacity: 0.5; pointer-events: none; }
+  .editable.saved { background: rgba(45,122,79,0.12); }
+  .editable .pill-row { padding: 0; }
+  .detail-grid input.inline-edit,
+  .detail-grid textarea.inline-edit {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 14px;
+    background: var(--paper);
+    border: 1px solid var(--ink);
+    padding: 6px 8px;
+    border-radius: 2px;
+    width: 100%;
+    outline: none;
+    color: var(--ink);
+    box-sizing: border-box;
+  }
+  .detail-grid textarea.inline-edit {
+    font-family: 'Fraunces', serif;
+    font-size: 15px;
+    line-height: 1.6;
+    resize: vertical;
+    min-height: 140px;
+    padding: 10px 12px;
+  }
+  /* Notes editable cell spans the full grid row */
+  .detail-grid .notes .editable {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+  }
+  .detail-grid .notes .editable:hover { background: transparent; }
+  .detail-grid .notes .editable:not(:has(textarea, input)) {
+    cursor: text;
+    padding: 8px 0;
+    margin: -8px 0;
+  }
+  .detail-grid .notes .editable:not(:has(textarea, input)):hover {
+    background: rgba(0,0,0,0.03);
+    border-radius: 2px;
+    padding: 8px 12px;
+    margin: -8px -12px;
+  }
+  .detail-grid input.inline-edit[type=date] {
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ============ TABLE ============ */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-variant-numeric: tabular-nums;
+  }
+  thead th {
+    text-align: left;
+    font-family: 'Inter Tight', sans-serif;
+    font-weight: 500;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--ink);
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+  }
+  thead th:first-child { padding-left: 0; }
+  thead th:last-child { padding-right: 0; }
+  thead th:hover { color: var(--ink); }
+  thead th .sort-indicator {
+    display: inline-block;
+    margin-left: 4px;
+    opacity: 0;
+    font-size: 9px;
+    transition: opacity 0.15s;
+  }
+  thead th.sorted .sort-indicator { opacity: 1; }
+
+  tbody tr[itemtype] {
+    border-bottom: 1px solid var(--rule);
+    transition: background 0.12s;
+    cursor: pointer;
+  }
+  tbody tr[itemtype]:hover { background: var(--paper-alt); }
+  tbody td { padding: 16px; vertical-align: top; color: var(--ink-soft); }
+  tbody td:first-child { padding-left: 0; }
+  tbody td:last-child { padding-right: 0; }
+
+  .id, .role-id {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-faint);
+    letter-spacing: 0.03em;
+  }
+  .name {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-size: 17px;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .role-link {
+    color: var(--ink-soft);
+    text-decoration: none;
+    display: block;
+  }
+  .role-link:hover .role-title { color: var(--ink); }
+  .role-title { font-size: 13px; }
+  .role-id { display: block; margin-top: 2px; font-size: 10px; }
+
+  /* ============ STAGE ============ */
+  .stage {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    color: var(--ink);
+  }
+  .stage::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--dot, var(--ink-faint));
+  }
+  .stage[data-stage="Sourced"]   { --dot: var(--s-sourced); }
+  .stage[data-stage="Applied"]   { --dot: var(--s-applied); }
+  .stage[data-stage="Interview 1"] { --dot: var(--s-interview-1); }
+  .stage[data-stage="Interview 2"] { --dot: var(--s-interview-2); }
+  .stage[data-stage="Interview 3"] { --dot: var(--s-interview-3); }
+  .stage[data-stage="Offer"]     { --dot: var(--s-offer); }
+  .stage[data-stage="Hired"]     { --dot: var(--s-hired); }
+  .stage[data-stage="Rejected"]  { --dot: var(--s-rejected); color: var(--ink-faint); }
+  .stage[data-stage="Withdrew"]  { --dot: var(--s-withdrew); color: var(--ink-faint); }
+  .stage[data-stage="Duplicate"] { --dot: var(--s-duplicate); color: var(--ink-faint); }
+
+  .priority {
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .priority[data-priority="High"] { color: var(--accent); font-weight: 500; }
+
+  /* ============ ACTIVITY LOG ============ */
+  .activity-section {
+    grid-column: 1 / -1;
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--rule);
+  }
+  .activity-section .count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-faint);
+    margin-left: 8px;
+    text-transform: none;
+    letter-spacing: 0.04em;
+  }
+  .activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .activity-empty {
+    padding: 20px;
+    text-align: center;
+    border: 1px dashed var(--rule);
+    border-radius: 4px;
+    font-size: 13px;
+  }
+  .activity-card {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 10px 14px;
+    cursor: pointer;
+    transition: background 0.12s, border-color 0.12s;
+  }
+  .activity-card:hover {
+    background: var(--paper-alt);
+    border-color: var(--ink-faint);
+  }
+  .activity-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 11px;
+    color: var(--ink-faint);
+    margin-bottom: 6px;
+  }
+  .activity-date {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-soft);
+  }
+  .activity-type {
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 500;
+    color: var(--ink);
+  }
+  .activity-id {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--ink-faint);
+    margin-left: auto;
+  }
+  .activity-delete-btn {
+    background: transparent;
+    border: none;
+    color: var(--ink-faint);
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 4px;
+    transition: color 0.12s;
+  }
+  .activity-delete-btn:hover { color: var(--accent); }
+  .activity-summary {
+    font-family: 'Fraunces', serif;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--ink);
+  }
+  .activity-form {
+    background: var(--paper-alt);
+    border: 1px solid var(--ink);
+    border-radius: 4px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .activity-form-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .activity-form input[type=text],
+  .activity-form input[type=date] {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    padding: 6px 10px;
+    border-radius: 2px;
+    width: auto;
+    min-width: 140px;
+    flex: 1;
+  }
+  .activity-form input[type=date] {
+    flex: 0 0 auto;
+    min-width: 0;
+  }
+  .activity-form input[type=text]:focus,
+  .activity-form input[type=date]:focus {
+    border-color: var(--ink);
+  }
+  .activity-form-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .activity-confirm {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    background: rgba(194,54,22,0.08);
+    border: 1px solid var(--accent);
+    border-radius: 4px;
+    font-size: 13px;
+    color: var(--ink);
+  }
+  .activity-confirm span { flex: 1; }
+
+  /* ============ DECISION ============ */
+  .decision {
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+  .decision-strong-yes { color: var(--s-hired); font-weight: 600; }
+  .decision-yes { color: var(--s-offer); }
+  .decision-pending { color: var(--ink-faint); }
+  .decision-no { color: var(--s-rejected); }
+  .decision-strong-no { color: var(--accent); font-weight: 600; }
+
+  .rating {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-soft);
+    letter-spacing: 0.1em;
+  }
+  .rating[data-rating=""] { color: var(--ink-faint); }
+
+  .last-activity {
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+  /* Last Activity is the last VISIBLE cell (source/owner tds trail after it, hidden);
+     :last-child would grab a hidden one, so target this class instead. */
+  tbody td.col-last-activity { padding-right: 0; }
+  thead th.col-applied { padding-right: 0; }
+
+
+  .action-needed-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    margin-left: 8px;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    background: rgba(194,54,22,0.12);
+    color: var(--accent);
+    border-radius: 999px;
+    cursor: pointer;
+    vertical-align: middle;
+    transition: background 0.12s;
+    border: none;
+  }
+  .action-needed-badge:hover { background: rgba(194,54,22,0.22); }
+  .action-needed-badge.dismissing { opacity: 0.4; }
+  .action-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    margin-left: 8px;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    border-radius: 999px;
+    cursor: pointer;
+    vertical-align: middle;
+    transition: background 0.12s, opacity 0.12s;
+    border: none;
+  }
+  .action-badge-needed { background: rgba(194,54,22,0.12); color: var(--accent); }
+  .action-badge-needed:hover { background: rgba(194,54,22,0.22); }
+  .action-badge-handled { background: var(--paper-alt); color: var(--ink-faint); }
+  .action-badge-handled:hover { background: var(--rule); color: var(--ink); }
+  .action-badge.busy { opacity: 0.4; pointer-events: none; }
+
+  /* ============ DETAIL ROW ============ */
+  tr.detail-row {
+    background: var(--paper-alt);
+    cursor: default;
+  }
+  tr.detail-row:hover { background: var(--paper-alt); }
+  tr.detail-row td {
+    padding: 24px 24px 32px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .detail-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px 40px;
+  }
+  .detail-grid .notes {
+    grid-column: 1 / -1;
+    padding-top: 16px;
+    margin-top: 8px;
+    border-top: 1px solid var(--rule);
+  }
+  .detail-grid .actions {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 12px;
+    padding-top: 16px;
+    margin-top: 8px;
+    border-top: 1px solid var(--rule);
+  }
+  .detail-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-faint);
+    margin-bottom: 6px;
+  }
+  .detail-value { font-size: 14px; color: var(--ink); }
+  .detail-value.muted { color: var(--ink-faint); font-style: italic; }
+  .detail-value a { color: var(--accent); text-decoration: none; border-bottom: 1px dotted var(--accent); }
+
+  .detail-grid .email-section {
+    grid-column: 1 / -1;
+    padding-top: 16px;
+    margin-top: 8px;
+    border-top: 1px solid var(--rule);
+  }
+  .email-composer { width: 100%; }
+  .email-composer textarea.inline-edit { min-height: 240px; }
+  .email-composer .pill { position: relative; }
+  .email-composer .pill.custom { padding-right: 24px; }
+  .email-composer .pill .del {
+    position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; color: var(--ink-faint); cursor: pointer;
+    font-size: 12px; line-height: 1; padding: 2px 4px;
+  }
+  .email-composer .pill .del:hover { color: var(--accent); }
+
+  .detail-grid .notes .detail-value {
+    font-family: 'Fraunces', serif;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+  }
+
+  /* ============ FORM ROW ============ */
+  tr.form-row, tr.confirm-row {
+    background: var(--paper-alt);
+    cursor: default;
+  }
+  tr.form-row:hover, tr.confirm-row:hover { background: var(--paper-alt); }
+  tr.form-row td, tr.confirm-row td {
+    padding: 24px 24px 32px;
+    border-bottom: 1px solid var(--ink);
+  }
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px 32px;
+  }
+  .form-grid label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-faint);
+  }
+  .form-grid label.full { grid-column: 1 / -1; }
+  .form-grid input, .form-grid select, .form-grid textarea {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    text-transform: none;
+    letter-spacing: normal;
+    padding: 6px 0;
+  }
+  .form-grid input.readonly { color: var(--ink-faint); font-family: 'JetBrains Mono', monospace; }
+  .form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+  }
+
+  /* ============ CONFIRM ROW ============ */
+  tr.confirm-row td {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  tr.confirm-row span {
+    font-family: 'Fraunces', serif;
+    font-size: 16px;
+    color: var(--ink);
+  }
+
+  /* ============ EMPTY ============ */
+  .empty {
+    text-align: center;
+    padding: 80px 0;
+    color: var(--ink-faint);
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 18px;
+  }
+  .muted { color: var(--ink-faint); font-style: italic; }
+
+  /* ============ FOOTER ============ */
+  footer {
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--rule);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--ink-faint);
+    letter-spacing: 0.05em;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 900px) {
+    body { padding: 32px 24px 64px; }
+    h1 { font-size: 40px; }
+    header { flex-direction: column; align-items: flex-start; gap: 16px; }
+    .controls { grid-template-columns: 1fr; }
+    .form-grid, .detail-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="brand">Example Co · Internal</div>
+    <h1>Hiring<em>.</em></h1>
+  </div>
+  <nav class="tabs">
+    <a href="#candidates">Candidates</a>
+    <a href="#roles">Roles</a>
+    <a href="#interviews">Interviews</a>
+  </nav>
+</header>
+
+<!-- ============ ROLES ============ -->
+<section id="roles" class="view">
+  <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 16px;">
+    <h2 style="margin:0;">Roles</h2>
+    <button id="addRoleBtn" class="btn-primary">+ New role</button>
+        <button id="addRoleFromJDBtn" class="btn-secondary" style="margin-left: 8px;">+ From JD</button>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th><th>Title</th><th>Department</th><th>Hiring Manager</th><th>Type</th><th>Status</th>
+      </tr>
+    </thead>
+    <tbody id="roles-body">
+    <tr id="R-001" itemscope itemtype="https://pagelove.org/Role">
+    <td class="id" itemprop="id">R-001</td>
+    <td><div class="name" itemprop="title">Founding Engineer</div></td>
+    <td itemprop="department">Engineering</td>
+    <td itemprop="hiringManager">Alex</td>
+    <td itemprop="employmentType">Full-time</td>
+    <td itemprop="status">Open</td>
+    <td hidden itemprop="location">Global</td>
+    <td hidden><time itemprop="targetStart" datetime></time></td>
+    <td hidden itemprop="salary">$120,000 – $160,000</td>
+    <td hidden itemprop="slug">founding-engineer</td>
+    <td hidden itemprop="tldr">Join us as one of the first three engineers. You'll shape the product, the codebase, and the way we work.</td>
+    <td hidden itemprop="notes">## About us
+
+We're building something we care about, with a small team of people who care about doing it well.
+
+## What you'll do
+
+* Own significant parts of the product end-to-end
+* Work directly with users and customers
+* Set the technical bar for the team
+
+## What we're looking for
+
+* 5+ years shipping software in small teams
+* Comfortable across the stack
+* Strong opinions, held lightly
+
+## What we offer
+
+* Meaningful equity
+* Remote-first, async-friendly
+* Genuine impact from day one</td>
+  </tr>
+    <tr id="R-002" itemscope itemtype="https://pagelove.org/Role">
+    <td class="id" itemprop="id">R-002</td>
+    <td><div class="name" itemprop="title">Community Manager</div></td>
+    <td itemprop="department">Marketing</td>
+    <td itemprop="hiringManager">Sam</td>
+    <td itemprop="employmentType">Full-time</td>
+    <td itemprop="status">Open</td>
+    <td hidden itemprop="location">Global</td>
+    <td hidden><time itemprop="targetStart" datetime></time></td>
+    <td hidden itemprop="salary">$70,000 – $95,000</td>
+    <td hidden itemprop="slug">community-manager</td>
+    <td hidden itemprop="tldr">Grow and support the community that uses what we build. Half comms, half product feedback loop.</td>
+    <td hidden itemprop="notes">## About the role
+
+You'll be the human our community talks to. That means responding to questions, running events, and feeding what you hear back into the product roadmap.
+
+## What you'll do
+
+* Own community channels (Discord, Twitter, etc.)
+* Run monthly events and quarterly meetups
+* Write short-form technical content
+
+## What we're looking for
+
+* Experience running a technical community
+* Strong writing
+* Comfortable talking to engineers</td>
+  </tr>
+    <tr id="R-003" itemscope itemtype="https://pagelove.org/Role">
+    <td class="id" itemprop="id">R-003</td>
+    <td><div class="name" itemprop="title">Product Designer</div></td>
+    <td itemprop="department">Design</td>
+    <td itemprop="hiringManager">Alex</td>
+    <td itemprop="employmentType">Full-time</td>
+    <td itemprop="status">On Hold</td>
+    <td hidden itemprop="location">Global</td>
+    <td hidden><time itemprop="targetStart" datetime></time></td>
+    <td hidden itemprop="salary">$95,000 – $130,000</td>
+    <td hidden itemprop="slug">product-designer</td>
+    <td hidden itemprop="tldr">Design the product end-to-end. Small team, high leverage, strong opinions welcome.</td>
+    <td hidden itemprop="notes">## About the role
+
+We're currently focused on hiring an engineer first, but if you're excited about designing a product from the ground up, get in touch.
+
+## What we're looking for
+
+* Product designer with a strong opinion about how software should feel
+* Comfortable with ambiguity
+* Ships fast, iterates faster</td>
+  </tr>
+  </tbody>
+  </table>
+  <p class="muted" style="margin-top: 24px; font-size: 12px;">Click any role to expand: editable detail, kanban of candidates by stage, full job description.</p>
+</section>
+
+<!-- ============ CANDIDATES ============ -->
+<section id="candidates" class="view">
+  <div class="controls">
+    <div class="search-wrap">
+      <input type="text" id="search" placeholder="Search by name, role, company, location…" autocomplete="off">
+    </div>
+    <button id="addCandidateBtn" class="btn-primary">+ New candidate</button>
+  </div>
+  <div id="stageFilters" class="pill-row" style="margin-bottom:8px"><span class="pill-label">Stage</span></div>
+  <div id="roleFilters" class="pill-row" style="margin-bottom:24px"><span class="pill-label">Role</span></div>
+
+  <table id="candidateTable">
+    <thead>
+      <tr>
+        <th data-sort="id">ID <span class="sort-indicator">↓</span></th>
+        <th data-sort="name">Candidate <span class="sort-indicator">↓</span></th>
+        <th data-sort="roleId">Role <span class="sort-indicator">↓</span></th>
+        <th data-sort="stage">Stage <span class="sort-indicator">↓</span></th>
+        <th data-sort="firstContact">Applied <span class="sort-indicator">↓</span></th>
+        <th data-sort="lastActivity">Last Activity <span class="sort-indicator">↓</span></th>
+      </tr>
+    </thead>
+    <tbody id="candidates-body">
+    <tr id="C-a1001x" itemscope itemtype="https://pagelove.org/Candidate">
+    <td class="id" itemprop="id">C-a1001x</td>
+    <td><div class="name" itemprop="name">Ada Lovelace</div></td>
+    <td><a href="#R-001" class="role-link"><span class="role-title">Founding Engineer</span><span class="role-id" itemprop="roleId">R-001</span></a></td>
+    <td><span class="stage" itemprop="stage" data-stage="Interview 2">Interview 2</span></td>
+    <td><time class="applied-date" datetime="2026-09-01">1 Sep 2026</time></td>
+    <td class="col-last-activity"><time class="last-activity" datetime="2026-09-12">12 Sep 2026</time></td>
+    <td hidden><a itemprop="email" href="mailto:ada@example.com">ada@example.com</a></td>
+    <td hidden itemprop="phone"></td>
+    <td hidden><a itemprop="linkedin" href></a></td>
+    <td hidden itemprop="location">London</td>
+    <td hidden itemprop="currentCompany"></td>
+    <td hidden itemprop="currentTitle"></td>
+    <td hidden><time itemprop="firstContact" datetime="2026-09-01">1 Sep 2026</time></td>
+    <td hidden itemprop="salaryExpectation"></td>
+    <td hidden itemprop="noticePeriod"></td>
+    <td hidden itemprop="notes">Excited about the role. Happy to talk about pattern-matching approaches to system design if useful.</td>
+    <td hidden><a itemprop="cvLink" href></a></td>
+    <td hidden><a itemprop="coverLetterLink" href></a></td>
+    <td hidden itemprop="duplicateOf"></td>
+    <td hidden itemprop="owner">Alex</td>
+  </tr>
+    <tr id="C-b2002y" itemscope itemtype="https://pagelove.org/Candidate">
+    <td class="id" itemprop="id">C-b2002y</td>
+    <td><div class="name" itemprop="name">Grace Hopper</div></td>
+    <td><a href="#R-001" class="role-link"><span class="role-title">Founding Engineer</span><span class="role-id" itemprop="roleId">R-001</span></a></td>
+    <td><span class="stage" itemprop="stage" data-stage="Offer">Offer</span></td>
+    <td><time class="applied-date" datetime="2026-08-20">20 Aug 2026</time></td>
+    <td class="col-last-activity"><time class="last-activity" datetime="2026-09-14">14 Sep 2026</time></td>
+    <td hidden><a itemprop="email" href="mailto:grace@example.com">grace@example.com</a></td>
+    <td hidden itemprop="phone"></td>
+    <td hidden><a itemprop="linkedin" href></a></td>
+    <td hidden itemprop="location">Remote</td>
+    <td hidden itemprop="currentCompany"></td>
+    <td hidden itemprop="currentTitle"></td>
+    <td hidden><time itemprop="firstContact" datetime="2026-08-20">20 Aug 2026</time></td>
+    <td hidden itemprop="salaryExpectation"></td>
+    <td hidden itemprop="noticePeriod">2 months</td>
+    <td hidden itemprop="notes">Strong across the stack, particularly interested in the compiler-adjacent parts of the roadmap.</td>
+    <td hidden><a itemprop="cvLink" href></a></td>
+    <td hidden><a itemprop="coverLetterLink" href></a></td>
+    <td hidden itemprop="duplicateOf"></td>
+    <td hidden itemprop="owner">Alex</td>
+  </tr>
+    <tr id="C-c3003z" itemscope itemtype="https://pagelove.org/Candidate">
+    <td class="id" itemprop="id">C-c3003z</td>
+    <td><div class="name" itemprop="name">Alan Turing</div></td>
+    <td><a href="#R-001" class="role-link"><span class="role-title">Founding Engineer</span><span class="role-id" itemprop="roleId">R-001</span></a></td>
+    <td><span class="stage" itemprop="stage" data-stage="Applied">Applied</span></td>
+    <td><time class="applied-date" datetime="2026-09-10">10 Sep 2026</time></td>
+    <td class="col-last-activity"><time class="last-activity" datetime>—</time></td>
+    <td hidden><a itemprop="email" href="mailto:alan@example.com">alan@example.com</a></td>
+    <td hidden itemprop="phone"></td>
+    <td hidden><a itemprop="linkedin" href></a></td>
+    <td hidden itemprop="location">Manchester</td>
+    <td hidden itemprop="currentCompany"></td>
+    <td hidden itemprop="currentTitle"></td>
+    <td hidden><time itemprop="firstContact" datetime="2026-09-10">10 Sep 2026</time></td>
+    <td hidden itemprop="salaryExpectation"></td>
+    <td hidden itemprop="noticePeriod"></td>
+    <td hidden itemprop="notes">Interested in the founding engineer role. Some questions about the tech stack.</td>
+    <td hidden><a itemprop="cvLink" href></a></td>
+    <td hidden><a itemprop="coverLetterLink" href></a></td>
+    <td hidden itemprop="duplicateOf"></td>
+    <td hidden itemprop="owner">Alex</td>
+  </tr>
+    <tr id="C-d4004w" itemscope itemtype="https://pagelove.org/Candidate">
+    <td class="id" itemprop="id">C-d4004w</td>
+    <td><div class="name" itemprop="name">Katherine Johnson</div></td>
+    <td><a href="#R-002" class="role-link"><span class="role-title">Community Manager</span><span class="role-id" itemprop="roleId">R-002</span></a></td>
+    <td><span class="stage" itemprop="stage" data-stage="Interview 1">Interview 1</span></td>
+    <td><time class="applied-date" datetime="2026-09-05">5 Sep 2026</time></td>
+    <td class="col-last-activity"><time class="last-activity" datetime="2026-09-13">13 Sep 2026</time></td>
+    <td hidden><a itemprop="email" href="mailto:katherine@example.com">katherine@example.com</a></td>
+    <td hidden itemprop="phone"></td>
+    <td hidden><a itemprop="linkedin" href></a></td>
+    <td hidden itemprop="location">Global</td>
+    <td hidden itemprop="currentCompany"></td>
+    <td hidden itemprop="currentTitle"></td>
+    <td hidden><time itemprop="firstContact" datetime="2026-09-05">5 Sep 2026</time></td>
+    <td hidden itemprop="salaryExpectation"></td>
+    <td hidden itemprop="noticePeriod"></td>
+    <td hidden itemprop="notes">Ran a large open-source community for 3 years. Excited by the small-team angle.</td>
+    <td hidden><a itemprop="cvLink" href></a></td>
+    <td hidden><a itemprop="coverLetterLink" href></a></td>
+    <td hidden itemprop="duplicateOf"></td>
+    <td hidden itemprop="owner">Sam</td>
+  </tr>
+    <tr id="C-e5005v" itemscope itemtype="https://pagelove.org/Candidate">
+    <td class="id" itemprop="id">C-e5005v</td>
+    <td><div class="name" itemprop="name">Margaret Hamilton</div></td>
+    <td><a href="#R-002" class="role-link"><span class="role-title">Community Manager</span><span class="role-id" itemprop="roleId">R-002</span></a></td>
+    <td><span class="stage" itemprop="stage" data-stage="Sourced">Sourced</span></td>
+    <td><time class="applied-date" datetime="2026-09-08">8 Sep 2026</time></td>
+    <td class="col-last-activity"><time class="last-activity" datetime>—</time></td>
+    <td hidden><a itemprop="email" href="mailto:margaret@example.com">margaret@example.com</a></td>
+    <td hidden itemprop="phone"></td>
+    <td hidden><a itemprop="linkedin" href="https://linkedin.com/in/example">https://linkedin.com/in/example</a></td>
+    <td hidden itemprop="location">New York</td>
+    <td hidden itemprop="currentCompany"></td>
+    <td hidden itemprop="currentTitle"></td>
+    <td hidden><time itemprop="firstContact" datetime="2026-09-08">8 Sep 2026</time></td>
+    <td hidden itemprop="salaryExpectation"></td>
+    <td hidden itemprop="noticePeriod"></td>
+    <td hidden itemprop="notes">Sourced via referral. Worth a first-round chat.</td>
+    <td hidden><a itemprop="cvLink" href></a></td>
+    <td hidden><a itemprop="coverLetterLink" href></a></td>
+    <td hidden itemprop="duplicateOf"></td>
+    <td hidden itemprop="owner">Sam</td>
+  </tr>
+    <tr id="C-f6006u" itemscope itemtype="https://pagelove.org/Candidate">
+    <td class="id" itemprop="id">C-f6006u</td>
+    <td><div class="name" itemprop="name">Radia Perlman</div></td>
+    <td><a href="#R-001" class="role-link"><span class="role-title">Founding Engineer</span><span class="role-id" itemprop="roleId">R-001</span></a></td>
+    <td><span class="stage" itemprop="stage" data-stage="Rejected">Rejected</span></td>
+    <td><time class="applied-date" datetime="2026-08-15">15 Aug 2026</time></td>
+    <td class="col-last-activity"><time class="last-activity" datetime="2026-08-22">22 Aug 2026</time></td>
+    <td hidden><a itemprop="email" href="mailto:radia@example.com">radia@example.com</a></td>
+    <td hidden itemprop="phone"></td>
+    <td hidden><a itemprop="linkedin" href></a></td>
+    <td hidden itemprop="location">Boston</td>
+    <td hidden itemprop="currentCompany"></td>
+    <td hidden itemprop="currentTitle"></td>
+    <td hidden><time itemprop="firstContact" datetime="2026-08-15">15 Aug 2026</time></td>
+    <td hidden itemprop="salaryExpectation"></td>
+    <td hidden itemprop="noticePeriod"></td>
+    <td hidden itemprop="notes">Strong engineer, but experience skewed towards very large teams. Not the right shape for this role right now.</td>
+    <td hidden><a itemprop="cvLink" href></a></td>
+    <td hidden><a itemprop="coverLetterLink" href></a></td>
+    <td hidden itemprop="duplicateOf"></td>
+    <td hidden itemprop="owner">Alex</td>
+  </tr>
+  </tbody>
+  </table>
+  <div class="empty" id="empty" hidden>No candidates match your filters.</div>
+</section>
+
+<!-- ============ INTERVIEWS ============ -->
+<section id="interviews" class="view">
+  <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 16px;">
+    <h2 style="margin:0;">Interviews</h2>
+    <button id="addInterviewBtn" class="btn-primary">+ New interview</button>
+  </div>
+  <table>
+    <thead><tr><th>ID</th><th>Candidate</th><th>Type</th><th>Date</th><th>Decision</th><th>Score</th></tr></thead>
+    <tbody id="interviews-body">
+  </tbody>
+  </table>
+  <p class="muted" style="margin-top: 24px; font-size: 12px;">Click any interview to expand and edit notes / score / decision inline.</p>
+</section>
+
+<!-- Activity log data layer (entries are displayed inside each candidate's expand panel) -->
+<section id="activity-log" class="view" hidden>
+  <table><tbody id="activity-body">
+  </tbody></table>
+
+<!-- Custom email templates saved by staff from the composer. Merged with the built-in EMAIL_TEMPLATES at render time. -->
+<table hidden><tbody id="email-templates-body"><tr id="T-001" itemscope itemtype="https://pagelove.org/EmailTemplate">
+    <td itemprop="id">T-001</td>
+    <td itemprop="label">Screen - invite</td>
+    <td itemprop="subject">{{company}} - {{role_title}} role</td>
+    <td itemprop="body" style="white-space:pre-wrap">Hi {{first_name}},
+
+Thanks for applying for our {{role_title}} role. We know applying takes real effort and we don't take it for granted.
+
+We'd love to have a 30 minute chat as a first round. We'll dig into your experience and whether the role is a good fit both ways.
+
+Grab a time that works for you here: {{scheduling_link}}
+
+Any questions, just reply.
+
+Thanks,
+{{sender_name}}
+{{company}}</td>
+  </tr>
+  <tr id="T-002" itemscope itemtype="https://pagelove.org/EmailTemplate">
+    <td itemprop="id">T-002</td>
+    <td itemprop="label">Screen - decline</td>
+    <td itemprop="subject">{{company}} - {{role_title}} role</td>
+    <td itemprop="body" style="white-space:pre-wrap">Hi {{first_name}},
+
+Thanks for applying for our {{role_title}} role, and for the time you put into it.
+
+We're not taking your application forward this time. We had a strong field and have chosen to move ahead with candidates whose experience lines up more closely with what we need right now.
+
+We'll keep your details on file and will get in touch if something more suitable opens up.
+
+Thanks again, and good luck with the search.
+
+{{sender_name}}
+{{company}}</td>
+  </tr>
+  <tr id="T-003" itemscope itemtype="https://pagelove.org/EmailTemplate">
+    <td itemprop="id">T-003</td>
+    <td itemprop="label">Interview - decline</td>
+    <td itemprop="subject">{{company}} - {{role_title}} role</td>
+    <td itemprop="body" style="white-space:pre-wrap">Hi {{first_name}},
+
+Thanks for making time to speak with us. We enjoyed the conversation and appreciated how much thought you'd put into it.
+
+After talking to everyone, we've decided not to move forward with your application. It was a close call and the decision came down to specific experience we need in the first year of this role.
+
+If it's useful, I'm happy to share more detailed feedback on a quick call. Just reply and I'll set it up.
+
+Thanks again for your time.
+
+{{sender_name}}
+{{company}}</td>
+  </tr>
+  <tr id="T-004" itemscope itemtype="https://pagelove.org/EmailTemplate">
+    <td itemprop="id">T-004</td>
+    <td itemprop="label">Offer - extend</td>
+    <td itemprop="subject">{{company}} - offer for {{role_title}}</td>
+    <td itemprop="body" style="white-space:pre-wrap">Hi {{first_name}},
+
+We'd love for you to join {{company}} as our {{role_title}}.
+
+The full offer details are attached. The headlines:
+
+Salary: {{salary}}
+Equity: {{equity}}
+Start date: {{start_date}}
+Location: {{location}}
+
+We think you'd be brilliant at this.
+
+Have a read and let's find 20 minutes to talk it through. Grab a time here: {{scheduling_link}}
+
+Looking forward to it.
+
+{{sender_name}}
+{{company}}</td>
+  </tr>
+  <tr id="T-005" itemscope itemtype="https://pagelove.org/EmailTemplate">
+    <td itemprop="id">T-005</td>
+    <td itemprop="label">Gentle follow-up</td>
+    <td itemprop="subject">{{company}} - {{role_title}} role</td>
+    <td itemprop="body" style="white-space:pre-wrap">Hi {{first_name}},
+
+Just floating this back to the top of your inbox. I sent over a link to book a first round chat last week and haven't heard back.
+
+No pressure at all. If you're no longer interested or the timing isn't right, a quick reply is genuinely helpful and I'll close things off.
+
+If you are still keen, here's the link: {{scheduling_link}}
+
+Thanks,
+{{sender_name}}
+{{company}}</td>
+  </tr></tbody></table>
+</section>
+
+
+<footer>
+  <div>PAGELOVE / ATS — internal hiring tool</div>
+  <div id="metaCount">0 candidates</div>
+</footer>
+
+<script>
+/* ---------- helpers ---------- */
+const $ = (s, root=document) => root.querySelector(s);
+const $$ = (s, root=document) => [...root.querySelectorAll(s)];
+
+const STAGES = ['Sourced','Applied','Interview 1','Interview 2','Interview 3','Offer','Hired','Rejected','Withdrew','Duplicate'];
+const SOURCES = ['Inbound','LinkedIn','Referral','Job Board','Events','Sponsor Licence Job Ad','Other'];
+const PRIORITIES = ['High','Medium','Low'];
+const OWNERS = ['Alex','Sam'];
+const EMPLOYMENT_TYPES = ['Full-time','Part-time','Contract','Advisor'];
+const ROLE_STATUSES = ['Open','On Hold','Filled','Closed'];
+const INTERVIEW_TYPES = ['Screen Call','Hiring Manager','Team Interview','Technical / Portfolio','Final','Culture'];
+const INTERVIEW_DECISIONS = ['Pending','Strong Yes','Yes','No','Strong No'];
+const ACTIVITY_TYPES = ['Outreach','Email','Email sent','Call','LinkedIn Message','Referral','Meeting','Stage change','Note','Other'];
+
+const ENTITY_FIELDS = {
+  candidate: ['id','name','roleId','stage','owner','email','phone','linkedin','location','firstContact','salaryExpectation','noticePeriod','notes','cvLink','coverLetterLink','duplicateOf'],
+  role: ['id','title','slug','department','hiringManager','employmentType','status','location','targetStart','tldr','salary','notes'],
+  interview: ['id','candidateId','type','date','duration','interviewers','decision','score','notes'],
+  activity: ['id','date','candidateId','type','summary'],
+  emailTemplate: ['id','label','subject','body'],
+};
+
+
+/* ================================================================
+ * Email sending (staff-triggered, via Postmark)
+ * ----------------------------------------------------------------
+ * Uses the /email endpoint (raw Subject + TextBody, no template alias)
+ * so we don't have to set up templates in the Postmark dashboard.
+ * Same Server as apply.html — the daily send-cap protects both flows
+ * if a token leaks.
+ * ================================================================ */
+const POSTMARK_SERVER_TOKEN_ATS = '';
+const POSTMARK_FROM_ATS         = 'benji@example.com';
+const POSTMARK_REPLY_TO_ATS     = 'benji@example.com';
+const POSTMARK_STREAM_ATS       = 'outbound';
+
+const EMAIL_TEMPLATES = [
+  {
+    id: 'custom',
+    label: 'Blank - write your own',
+    subject: (c, r) => `Example Co - ${r.title || ''}`,
+    body: () => ''
+  },
+];
+
+async function sendCandidateEmailViaPostmark({ to, subject, body }) {
+  if (!POSTMARK_SERVER_TOKEN_ATS) throw new Error('Postmark not configured \u2014 paste your Server API Token into POSTMARK_SERVER_TOKEN_ATS in admin/index.html.');
+  const resp = await fetch('https://api.postmarkapp.com/email', {
+    method: 'POST',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'X-Postmark-Server-Token': POSTMARK_SERVER_TOKEN_ATS,
+    },
+    body: JSON.stringify({
+      From: POSTMARK_FROM_ATS,
+      To: to,
+      ReplyTo: POSTMARK_REPLY_TO_ATS,
+      Subject: subject,
+      TextBody: body,
+      MessageStream: POSTMARK_STREAM_ATS,
+    }),
+  });
+  if (!resp.ok) throw new Error(`Postmark ${resp.status}: ${(await resp.text()).slice(0, 200)}`);
+  const data = await resp.json().catch(() => ({}));
+  if (data.ErrorCode && data.ErrorCode !== 0) throw new Error(`Postmark error ${data.ErrorCode}: ${data.Message || 'unknown'}`);
+  return data.MessageID;
+}
+
+
+/* Substitute {{merge_field}} placeholders when applying a saved custom template.
+   Resolved: first_name, name, role_title, salary, location, sender_name.
+   Left as-is (for manual fill before send): scheduling_link, equity, start_date. */
+function resolveMergeFields(text, ctx) {
+  if (!text) return '';
+  const map = {
+    first_name: ctx.candidate?.firstName || '',
+    name: ctx.candidate?.name || '',
+    role_title: ctx.role?.title || '',
+    salary: ctx.role?.salary || '',
+    location: ctx.role?.location || '',
+    sender_name: ctx.sender?.firstName || '',
+  };
+  return text.replace(/\{\{\s*(\w+)\s*\}\}/g, (m, key) => {
+    if (key in map) return map[key];
+    return m;
+  });
+}
+
+function openEmailComposer(candidateId) {
+  const tr = document.getElementById(candidateId);
+  if (!tr) return;
+  const slot = document.querySelector(`.email-composer-slot[data-candidate-id="${candidateId}"]`);
+  const btn  = document.querySelector(`.send-email-btn[data-send-email="${candidateId}"]`);
+  if (!slot || !btn) return;
+  if (slot.querySelector('form')) return;
+
+  const candidate = {
+    id: candidateId,
+    name: readField(tr, 'name'),
+    firstName: (readField(tr, 'name') || '').split(/\s+/)[0],
+    email: readField(tr, 'email'),
+    roleId: readField(tr, 'roleId'),
+  };
+  const roleTr = candidate.roleId ? document.getElementById(candidate.roleId) : null;
+  const role = {
+    id: candidate.roleId,
+    title: roleTr ? readField(roleTr, 'title') : '',
+    hiringManager: roleTr ? readField(roleTr, 'hiringManager') : '',
+  };
+  const sender = { firstName: 'Alex' };
+
+  if (!candidate.email) {
+    alert('Cannot send \u2014 this candidate has no email on file. Add one first.');
+    return;
+  }
+
+  const allTemplates = [...EMAIL_TEMPLATES.filter(t => t.id !== 'custom'), ...getCustomEmailTemplates(), EMAIL_TEMPLATES.find(t => t.id === 'custom')].filter(Boolean);
+  const templatePills = allTemplates.map((t, i) =>
+    `<button type="button" class="pill${t.custom ? ' custom' : ''}${i === 0 ? ' active' : ''}" data-template-id="${escHtml(t.id)}">${escHtml(t.label)}${t.custom ? `<button type="button" class="del" data-delete-template="${escHtml(t.id)}" title="Delete template">\u00d7</button>` : ''}</button>`
+  ).join('');
+
+  btn.style.display = 'none';
+  slot.innerHTML = `<form class="email-composer" style="border:1px solid var(--rule); border-radius:4px; padding:16px; margin-bottom:12px; background:var(--paper-alt);">
+    <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px;">
+      <div class="role-jd-label" style="margin:0;">To: ${escHtml(candidate.name)} &lt;${escHtml(candidate.email)}&gt;</div>
+      <button type="button" class="btn-link email-cancel-btn" style="background:none; border:none; color:var(--ink-faint); font-size:12px; cursor:pointer;">cancel</button>
+    </div>
+    <div class="pill-row" style="gap:6px; margin-bottom:12px;">${templatePills}</div>
+    <label style="display:block; margin-bottom:8px;">
+      <span style="font-size:10px; text-transform:uppercase; letter-spacing:0.1em; color:var(--ink-faint);">Subject</span>
+      <input type="text" name="subject" class="inline-edit" style="margin-top:4px;">
+    </label>
+    <label style="display:block; margin-bottom:12px;">
+      <span style="font-size:10px; text-transform:uppercase; letter-spacing:0.1em; color:var(--ink-faint);">Body</span>
+      <textarea name="body" rows="14" class="inline-edit" style="margin-top:4px; font-family:'Inter Tight',sans-serif; line-height:1.5;"></textarea>
+    </label>
+    <div style="display:flex; gap:8px; align-items:center;">
+      <button type="button" class="btn-primary send-via-ats-btn">Send via ATS</button>
+      <button type="submit" class="btn-secondary email-send-btn">Open in Gmail \u2192</button>
+      <button type="button" class="btn-secondary save-tpl-btn" style="margin-left:auto;">Save as template</button>
+      <span class="email-status" style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink-faint);"></span>
+    </div>
+  </form>`;
+
+  const form = slot.querySelector('form');
+  const subjEl = form.querySelector('input[name=subject]');
+  const bodyEl = form.querySelector('textarea[name=body]');
+
+  const applyTemplate = (tplId) => {
+    const builtin = EMAIL_TEMPLATES.find(x => x.id === tplId);
+    if (builtin) { subjEl.value = builtin.subject(candidate, role); bodyEl.value = builtin.body(candidate, role, sender); return; }
+    const custom = allTemplates.find(x => x.id === tplId && x.custom);
+    if (custom) {
+      const ctx = { candidate, role, sender };
+      subjEl.value = resolveMergeFields(custom.subject, ctx);
+      bodyEl.value = resolveMergeFields(custom.body, ctx);
+    }
+  };
+  applyTemplate(EMAIL_TEMPLATES[0].id);
+
+  form.querySelectorAll('.pill').forEach(p => {
+    p.addEventListener('click', () => {
+      form.querySelectorAll('.pill').forEach(x => x.classList.remove('active'));
+      p.classList.add('active');
+      applyTemplate(p.dataset.templateId);
+    });
+  });
+
+  const cancel = () => {
+    slot.innerHTML = '';
+    btn.style.display = '';
+  };
+  form.querySelector('.email-cancel-btn').addEventListener('click', cancel);
+
+
+  form.querySelector('.send-via-ats-btn').addEventListener('click', async () => {
+    const status = form.querySelector('.email-status');
+    const btn = form.querySelector('.send-via-ats-btn');
+    const activeTpl = form.querySelector('.pill.active')?.dataset.templateId || 'custom';
+    const subject = subjEl.value.trim();
+    const body = bodyEl.value.trim();
+    if (!subject || !body) { status.textContent = 'Fill in subject + body first.'; return; }
+    if (!confirm(`Send via Postmark to ${candidate.name} <${candidate.email}>?`)) return;
+    btn.disabled = true;
+    status.textContent = 'Sending via ATS\u2026';
+    const payload = {
+      From: 'benji@example.com',
+      To: candidate.email,
+      ReplyTo: 'benji@example.com',
+      Subject: subject,
+      TextBody: body,
+      MessageStream: 'outbound',
+    };
+    const outboxId = 'E-' + Math.random().toString(36).slice(2, 10);
+    try {
+      const resp = await fetch(`/outbox/${outboxId}.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!resp.ok) throw new Error(`PUT /outbox failed (${resp.status}): ${(await resp.text()).slice(0,200)}`);
+      status.textContent = 'Queued. Logging activity\u2026';
+      const activity = {
+        id: nextId('L', '#activity-body'),
+        date: new Date().toISOString().slice(0, 10),
+        candidateId: candidateId,
+        type: 'Email sent',
+        summary: `[${activeTpl}] ${subject}\n\n${body}`,
+      };
+      await httpPOST($('#activity-body'), renderActivityRow(activity));
+      refreshActivityList(candidateId);
+      refreshLastActivity();
+      applyFilters();
+      status.textContent = 'Sent \u2713 (via ATS \u2192 Postmark). Outbox id ' + outboxId;
+      setTimeout(cancel, 2000);
+    } catch (err) {
+      console.error(err);
+      status.textContent = 'Failed: ' + (err.message || err);
+      btn.disabled = false;
+    }
+  });
+
+    form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const status = form.querySelector('.email-status');
+    const sendBtn = form.querySelector('.email-send-btn');
+    const activeTpl = form.querySelector('.pill.active')?.dataset.templateId || 'custom';
+    const subject = subjEl.value.trim();
+    const body = bodyEl.value.trim();
+    if (!subject || !body) { status.textContent = 'Fill in subject + body first.'; return; }
+    // Open Gmail compose in a new tab with subject + body prefilled.
+    // Also log an 'Email sent' activity so the ATS timeline shows the send even though the actual send happens in Gmail.
+    const gmailUrl = 'https://mail.google.com/mail/?view=cm&fs=1'
+      + '&to=' + encodeURIComponent(candidate.email)
+      + '&su=' + encodeURIComponent(subject)
+      + '&body=' + encodeURIComponent(body);
+    window.open(gmailUrl, '_blank', 'noopener');
+    sendBtn.disabled = true;
+    status.textContent = 'Opened in Gmail. Logging activity\u2026';
+    try {
+      const activity = {
+        id: nextId('L', '#activity-body'),
+        date: new Date().toISOString().slice(0, 10),
+        candidateId: candidateId,
+        type: 'Email sent',
+        summary: `[${activeTpl}] ${subject}\n\n${body}`,
+      };
+      const html = renderActivityRow(activity);
+      await httpPOST($('#activity-body'), html);
+      refreshActivityList(candidateId);
+      refreshLastActivity();
+      status.textContent = 'Logged. Click Send in Gmail to actually deliver.';
+      setTimeout(cancel, 2500);
+    } catch (err) {
+      console.error(err);
+      status.textContent = 'Gmail opened, but activity log failed: ' + (err.message || err);
+      sendBtn.disabled = false;
+    }
+  });
+
+
+  form.querySelector('.save-tpl-btn').addEventListener('click', async () => {
+    const subj = subjEl.value.trim(); const body = bodyEl.value.trim();
+    if (!subj || !body) { alert('Fill in subject + body first.'); return; }
+    const label = prompt('Name this template:', subj.slice(0, 40));
+    if (!label) return;
+    const tpl = { id: nextId('T', '#email-templates-body'), label: label.trim(), subject: subj, body: body };
+    const html = renderEmailTemplateRow(tpl);
+    try {
+      await httpPOST($('#email-templates-body'), html);
+      // Rebuild the pill row so the new template appears immediately
+      const pillRow = form.querySelector('.pill-row');
+      const activeId = form.querySelector('.pill.active')?.dataset.templateId || tpl.id;
+      const merged = [...EMAIL_TEMPLATES.filter(t => t.id !== 'custom'), ...getCustomEmailTemplates(), EMAIL_TEMPLATES.find(t => t.id === 'custom')].filter(Boolean);
+      pillRow.innerHTML = merged.map(t =>
+        `<button type="button" class="pill${t.custom ? ' custom' : ''}${t.id === activeId ? ' active' : ''}" data-template-id="${escHtml(t.id)}">${escHtml(t.label)}${t.custom ? `<button type="button" class="del" data-delete-template="${escHtml(t.id)}" title="Delete template">\u00d7</button>` : ''}</button>`
+      ).join('');
+      // Re-wire pill click handlers
+      pillRow.querySelectorAll('.pill').forEach(p => {
+        p.addEventListener('click', (e) => {
+          if (e.target.matches('.del')) return;
+          pillRow.querySelectorAll('.pill').forEach(x => x.classList.remove('active'));
+          p.classList.add('active');
+          applyTemplate(p.dataset.templateId);
+        });
+      });
+    } catch (err) {
+      console.error(err); alert('Save failed: ' + (err.message || err));
+    }
+  });
+
+  // Delete-template ×
+  form.addEventListener('click', async (e) => {
+    if (!e.target.matches('.del[data-delete-template]')) return;
+    e.stopPropagation();
+    const tplId = e.target.dataset.deleteTemplate;
+    if (!confirm('Delete this template?')) return;
+    try {
+      await httpDELETE(document.getElementById(tplId), 'tr#' + tplId);
+      e.target.closest('.pill').remove();
+    } catch (err) {
+      console.error(err); alert('Delete failed: ' + (err.message || err));
+    }
+  });
+
+  subjEl.focus();
+}
+
+function fmtDate(d) {
+  if (!d) return '—';
+  const date = new Date(d);
+  if (isNaN(date)) return '—';
+  return date.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+}
+
+function slugify(text) {
+  return String(text || '').toLowerCase()
+    .replace(/[’']/g, '')
+    .replace(/&/g, ' and ')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/-{2,}/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 60);
+}
+
+function escHtml(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function readField(tr, prop) {
+  const el = tr.querySelector(`[itemprop="${prop}"]`);
+  if (!el) return '';
+  if (el.tagName === 'TIME') return el.getAttribute('datetime') || '';
+  if (el.tagName === 'A') {
+    const href = el.getAttribute('href') || '';
+    if (href.startsWith('mailto:')) return href.slice(7);
+    return href;
+  }
+  return el.textContent.trim();
+}
+
+function roleTitle(roleId) {
+  const r = document.getElementById(roleId);
+  return r ? readField(r, 'title') : '—';
+}
+
+function nextId(prefix, bodySel) {
+  const ids = $$(bodySel + ' > tr[id]')
+    .map(tr => parseInt(tr.id.split('-')[1], 10))
+    .filter(n => !isNaN(n));
+  const next = (ids.length ? Math.max(...ids) : 0) + 1;
+  return prefix + '-' + String(next).padStart(3, '0');
+}
+
+/* ---------- HTTP helpers (raw fetch, independent of PLDocument timing) ---------- */
+// Canonical path of this admin document. Hardcoded (not window.location.pathname)
+// so writes hit the right file whether the page is loaded at /admin/ or /admin/index.html.
+const ADMIN_DOC = '/admin/index.html';
+function parseRowHtml(html) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString('<table><tbody>' + html + '</tbody></table>', 'text/html');
+  return doc.querySelector('tbody').firstElementChild;
+}
+
+async function httpPUT(el, html) {
+  const sel = '#' + el.id;
+  const resp = await fetch(ADMIN_DOC, {
+    method: 'PUT',
+    headers: { 'Range': 'selector=' + sel, 'Content-Type': 'text/html' },
+    body: html,
+  });
+  if (!resp.ok) throw new Error('PUT ' + resp.status + ': ' + (await resp.text()));
+  const newHtml = await resp.text();
+  const newEl = parseRowHtml(newHtml);
+  el.replaceWith(newEl);
+  return newEl;
+}
+
+async function httpPOST(parent, html) {
+  const sel = '#' + parent.id;
+  const resp = await fetch(ADMIN_DOC, {
+    method: 'POST',
+    headers: { 'Range': 'selector=' + sel, 'Content-Type': 'text/html' },
+    body: html,
+  });
+  if (!resp.ok) throw new Error('POST ' + resp.status + ': ' + (await resp.text()));
+  const newHtml = await resp.text();
+  const newEl = parseRowHtml(newHtml);
+  parent.appendChild(newEl);
+  return newEl;
+}
+
+async function httpDELETE(el) {
+  const sel = '#' + el.id;
+  const resp = await fetch(ADMIN_DOC, {
+    method: 'DELETE',
+    headers: { 'Range': 'selector=' + sel },
+  });
+  if (!resp.ok) throw new Error('DELETE ' + resp.status + ': ' + (await resp.text()));
+  el.remove();
+}
+
+/* ---------- Render candidate row from data object ---------- */
+function renderCandidateRow(c) {
+  const role = roleTitle(c.roleId);
+  const r = c.rating ? +c.rating : 0;
+  const ratingDots = r ? '●'.repeat(r) + '○'.repeat(5 - r) : '—';
+  const linkedinHref = c.linkedin || '';
+  const emailHref = c.email ? 'mailto:' + c.email : '';
+  return `<tr id="${escHtml(c.id)}" itemscope itemtype="https://pagelove.org/Candidate">
+    <td class="id" itemprop="id">${escHtml(c.id)}</td>
+    <td><div class="name" itemprop="name">${escHtml(c.name)}</div></td>
+    <td><a href="#${escHtml(c.roleId)}" class="role-link"><span class="role-title">${escHtml(role)}</span><span class="role-id" itemprop="roleId">${escHtml(c.roleId)}</span></a></td>
+    <td><span class="stage" itemprop="stage" data-stage="${escHtml(c.stage)}">${escHtml(c.stage)}</span></td>
+    <td class="col-last-activity"><time class="last-activity" datetime="">—</time></td>
+    <td hidden><a itemprop="email" href="${escHtml(emailHref)}">${escHtml(c.email||'')}</a></td>
+    <td hidden itemprop="phone">${escHtml(c.phone||'')}</td>
+    <td hidden><a itemprop="linkedin" href="${escHtml(linkedinHref)}">${escHtml(linkedinHref)}</a></td>
+    <td hidden itemprop="location">${escHtml(c.location||'')}</td>
+    <td hidden><time itemprop="firstContact" datetime="${escHtml(c.firstContact||'')}">${fmtDate(c.firstContact)}</time></td>
+    <td hidden itemprop="salaryExpectation">${escHtml(c.salaryExpectation||'')}</td>
+    <td hidden itemprop="noticePeriod">${escHtml(c.noticePeriod||'')}</td>
+    <td hidden itemprop="notes">${escHtml(c.notes||'')}</td>
+    <td hidden><a itemprop="cvLink" href="${escHtml(c.cvLink||'')}">${escHtml(c.cvLink||'')}</a></td>
+    <td hidden><a itemprop="coverLetterLink" href="${escHtml(c.coverLetterLink||'')}">${escHtml(c.coverLetterLink||'')}</a></td>
+    <td hidden itemprop="duplicateOf">${escHtml(c.duplicateOf||'')}</td>
+    <td hidden itemprop="owner">${escHtml(c.owner||'')}</td>
+  </tr>`;
+}
+
+/* ---------- State ---------- */
+const state = { search: '', stage: '', role: '', sortKey: 'firstContact', sortDir: 'desc' };
+
+/* ---------- Filter ---------- */
+function applyFilters() {
+  const q = state.search.toLowerCase().trim();
+  const rows = $$('#candidates-body > tr[itemtype]');
+  rows.forEach(tr => {
+    const fields = ['name','roleId','stage','owner','location','notes']
+      .map(p => readField(tr, p)).join(' ').toLowerCase();
+    const matchesSearch = !q || fields.includes(q);
+    const matchesStage = !state.stage || readField(tr,'stage') === state.stage;
+    const matchesRole = !state.role || readField(tr,'roleId') === state.role;
+    const visible = matchesSearch && matchesStage && matchesRole;
+    tr.style.display = visible ? '' : 'none';
+    const next = tr.nextElementSibling;
+    if (next?.classList.contains('detail-row') || next?.classList.contains('form-row') || next?.classList.contains('confirm-row')) {
+      next.style.display = visible ? '' : 'none';
+    }
+  });
+  updateMetaCount();
+  decorateDuplicates();
+  decorateLastComm();
+}
+
+/* Show a "↔ Duplicate of NAME" subtitle on candidate rows where duplicateOf is set. */
+
+
+/* Decorate each candidate row with a persistent "ball in whose court" badge + last-comm subtitle.
+   Badge has two visual states, both clickable to flip:
+     - "email needed" (red pill) — ball in our court
+     - "handled" (muted checkmark pill) — ball in their court
+   State inferred from the latest activity; user click writes an override entry ('Handled' or 'Needs email'). */
+function decorateLastComm() {
+  const activitiesByCandidate = new Map();
+  $$('#activity-body tr[itemtype]').forEach(tr => {
+    const cid = readField(tr, 'candidateId'); const date = readField(tr, 'date'); const type = readField(tr, 'type'); const summary = readField(tr, 'summary');
+    if (!cid || !date) return;
+    if (!activitiesByCandidate.has(cid)) activitiesByCandidate.set(cid, []);
+    activitiesByCandidate.get(cid).push({ date, type, summary });
+  });
+  $$('#candidates-body > tr[itemtype]').forEach(tr => {
+    const nameCell = tr.querySelector('td .name');
+    if (!nameCell) return;
+    const parent = nameCell.parentElement;
+    parent.querySelectorAll('.last-comm-sub, .action-badge').forEach(n => n.remove());
+
+    const activities = (activitiesByCandidate.get(tr.id) || []).sort((a,b) => a.date.localeCompare(b.date));
+    const latest = activities[activities.length - 1];
+    const stage = readField(tr, 'stage');
+    const terminalStages = new Set(['Hired', 'Withdrew', 'Duplicate']);
+
+    // Decide state:
+    //   "handled" (grey) if latest activity is Email sent, Note (unless it's a "Needs email" override), or if stage is terminal
+    //   "needs email" (red) otherwise — including no-activity, stage-change, or explicit "Needs email" override
+    let handled;
+    if (terminalStages.has(stage)) {
+      handled = true;
+    } else if (!latest) {
+      handled = false;  // fresh candidate needs first response
+    } else if (latest.type === 'Email sent') {
+      handled = true;
+    } else if (latest.type === 'Note' && /^Marked as handled/.test(latest.summary || '')) {
+      handled = true;
+    } else if (latest.type === 'Note' && /^Marked needing email/.test(latest.summary || '')) {
+      handled = false;
+    } else if (latest.type === 'Stage change') {
+      handled = false;
+    } else {
+      // Email inbound, LinkedIn Message inbound, generic Note, Interview, Call → treat as handled (ball not with us)
+      handled = true;
+    }
+
+    if (!terminalStages.has(stage)) {
+      const badge = document.createElement('button');
+      badge.type = 'button';
+      if (handled) {
+        badge.className = 'action-badge action-badge-handled';
+        badge.textContent = '\u2713 handled';
+        badge.title = 'Click to flag as needing an email';
+        badge.dataset.toggleAction = tr.id;
+        badge.dataset.currentState = 'handled';
+      } else {
+        badge.className = 'action-badge action-badge-needed';
+        badge.textContent = '\u2709 email needed';
+        badge.title = 'Click to mark as handled';
+        badge.dataset.toggleAction = tr.id;
+        badge.dataset.currentState = 'needed';
+      }
+      parent.appendChild(badge);
+    }
+
+    if (latest) {
+      const sub = document.createElement('div');
+      sub.className = 'last-comm-sub';
+      sub.style.cssText = 'font-size:11px; margin-top:2px; letter-spacing:0.01em;';
+      const d = new Date(latest.date); const now = new Date();
+      const days = Math.max(0, Math.round((now - d) / 86400000));
+      const rel = days === 0 ? 'today' : days === 1 ? '1d ago' : days + 'd ago';
+      if (latest.type === 'Email sent') {
+        const tplId = (latest.summary || '').match(/^\[([^\]]+)\]/)?.[1] || '';
+        const kind = tplId.includes('invite') ? 'invited'
+                   : tplId.includes('decline') ? 'declined'
+                   : tplId.includes('offer')   ? 'offered'
+                   : tplId.includes('follow')  ? 'nudged'
+                   : 'emailed';
+        sub.style.color = 'var(--ink-faint)';
+        sub.textContent = '\u2709 ' + kind + ' ' + rel + ' (waiting on them)';
+      } else if (latest.type === 'Email' || latest.type === 'LinkedIn Message') {
+        sub.style.color = 'var(--accent)';
+        sub.textContent = '\u2190 they replied ' + rel + ' (your move)';
+      } else {
+        sub.style.color = 'var(--ink-faint)';
+        sub.textContent = latest.type.toLowerCase() + ' \u00b7 ' + rel;
+      }
+      parent.appendChild(sub);
+    }
+  });
+}
+
+function decorateDuplicates() {
+  $$('#candidates-body > tr[itemtype]').forEach(tr => {
+    const dupId = readField(tr, 'duplicateOf');
+    const nameCell = tr.querySelector('td .name');
+    if (!nameCell) return;
+    let sub = nameCell.parentElement.querySelector('.duplicate-of-sub');
+    if (!dupId) { if (sub) sub.remove(); return; }
+    const target = document.getElementById(dupId);
+    const targetName = target ? readField(target, 'name') : dupId;
+    if (!sub) {
+      sub = document.createElement('a');
+      sub.className = 'duplicate-of-sub';
+      sub.style.cssText = 'display:block; font-size:11px; color:var(--s-duplicate); text-decoration:none; margin-top:2px; letter-spacing:0.01em;';
+      nameCell.parentElement.appendChild(sub);
+    }
+    sub.href = '#' + dupId;
+    sub.textContent = '↔ Duplicate of ' + targetName;
+  });
+}
+
+/* ---------- Sort ---------- */
+function applySort() {
+  const tbody = $('#candidates-body');
+  const rows = $$('#candidates-body > tr[itemtype]');
+  const dir = state.sortDir === 'asc' ? 1 : -1;
+  const key = state.sortKey;
+  rows.sort((a, b) => {
+    let av, bv;
+    if (key === 'firstContact') {
+      av = a.querySelector('.applied-date')?.getAttribute('datetime') || readField(a, 'firstContact');
+      bv = b.querySelector('.applied-date')?.getAttribute('datetime') || readField(b, 'firstContact');
+    } else if (key === 'lastActivity') {
+      av = a.querySelector('.last-activity')?.getAttribute('datetime') || '';
+      bv = b.querySelector('.last-activity')?.getAttribute('datetime') || '';
+    } else if (key === 'rating') {
+      av = +readField(a, 'rating') || 0;
+      bv = +readField(b, 'rating') || 0;
+    } else {
+      av = readField(a, key) || '';
+      bv = readField(b, key) || '';
+      if (typeof av === 'string') av = av.toLowerCase();
+      if (typeof bv === 'string') bv = bv.toLowerCase();
+    }
+    if (av < bv) return -1 * dir;
+    if (av > bv) return dir;
+    return 0;
+  });
+  rows.forEach(tr => {
+    const sib = tr.nextElementSibling;
+    const trail = (sib?.classList.contains('detail-row') || sib?.classList.contains('form-row') || sib?.classList.contains('confirm-row')) ? sib : null;
+    tbody.appendChild(tr);
+    if (trail) tbody.appendChild(trail);
+  });
+  $$('thead th[data-sort]').forEach(th => {
+    th.classList.toggle('sorted', th.dataset.sort === key);
+    const ind = th.querySelector('.sort-indicator');
+    if (ind) ind.textContent = dir === 1 ? '↑' : '↓';
+  });
+}
+
+function updateMetaCount() {
+  const visible = $$('#candidates-body > tr[itemtype]').filter(tr => tr.style.display !== 'none').length;
+  $('#metaCount').textContent = visible + ' candidate' + (visible === 1 ? '' : 's');
+  $('#empty').hidden = visible > 0;
+}
+
+/* ---------- Filters populate ---------- */
+function populateFilters() {
+  // Stage pills
+  const stageRow = $('#stageFilters');
+  ['', ...STAGES].forEach(s => {
+    const b = document.createElement('button');
+    b.className = 'pill' + (s === '' ? ' active' : '');
+    if (s) b.dataset.stage = s;
+    b.dataset.value = s;
+    b.textContent = s || 'All';
+    b.addEventListener('click', () => {
+      $$('#stageFilters .pill').forEach(p => p.classList.remove('active'));
+      b.classList.add('active');
+      state.stage = s;
+      applyFilters();
+    });
+    stageRow.appendChild(b);
+  });
+  // Role pills
+  const roleRow = $('#roleFilters');
+  const allBtn = document.createElement('button');
+  allBtn.className = 'pill active';
+  allBtn.dataset.value = '';
+  allBtn.textContent = 'All';
+  allBtn.addEventListener('click', () => {
+    $$('#roleFilters .pill').forEach(p => p.classList.remove('active'));
+    allBtn.classList.add('active');
+    state.role = '';
+    applyFilters();
+  });
+  roleRow.appendChild(allBtn);
+  $$('#roles-body > tr[id]').forEach(tr => {
+    const b = document.createElement('button');
+    b.className = 'pill';
+    b.dataset.value = tr.id;
+    b.textContent = readField(tr, 'title');
+    b.addEventListener('click', () => {
+      $$('#roleFilters .pill').forEach(p => p.classList.remove('active'));
+      b.classList.add('active');
+      state.role = tr.id;
+      applyFilters();
+    });
+    roleRow.appendChild(b);
+  });
+}
+
+/* ---------- Expand row ---------- */
+function toggleExpand(tr) {
+  const next = tr.nextElementSibling;
+  if (next?.classList.contains('detail-row')) {
+    next.remove();
+    return;
+  }
+  if (next?.classList.contains('form-row') || next?.classList.contains('confirm-row')) return;
+  tr.after(renderDetailRow(tr));
+}
+
+function fieldDisplay(val, type) {
+  if (type === 'enum-stage') return `<span class="stage" data-stage="${escHtml(val)}">${escHtml(val||'—')}</span>`;
+  if (type === 'enum-priority') return `<span class="priority" data-priority="${escHtml(val)}">${escHtml(val||'—')}</span>`;
+  if (type === 'enum-rating' || type === 'enum-score') {
+    const r = +val||0;
+    return r ? `<span class="rating">${'●'.repeat(r)}${'○'.repeat(5-r)}</span>` : '<span class="muted">—</span>';
+  }
+  if (type === 'enum-interviewDecision') {
+    if (!val) return '<span class="muted">—</span>';
+    const cls = val === 'Strong Yes' ? 'decision-strong-yes' : val === 'Strong No' ? 'decision-strong-no' : val === 'Yes' ? 'decision-yes' : val === 'No' ? 'decision-no' : 'decision-pending';
+    return `<span class="decision ${cls}">${escHtml(val)}</span>`;
+  }
+  if (type === 'date') return val ? fmtDate(val) : '<span class="muted">—</span>';
+  if (type === 'email') return val ? `<a href="mailto:${escHtml(val)}">${escHtml(val)}</a>` : '<span class="muted">—</span>';
+  if (type === 'url') return val ? `<a href="${escHtml(val)}" target="_blank" rel="noopener">${escHtml(val)}</a>` : '<span class="muted">—</span>';
+  if (type === 'enum-role') {
+    const r = val ? document.getElementById(val) : null;
+    return r ? `${escHtml(readField(r,'title'))} <span class="role-id">${escHtml(val)}</span>` : '<span class="muted">—</span>';
+  }
+  if (type === 'enum-candidate') {
+    const c = val ? document.getElementById(val) : null;
+    return c ? `${escHtml(readField(c,'name'))} <span class="role-id">${escHtml(val)}</span>` : '<span class="muted">—</span>';
+  }
+  if (type === 'candidate-ref') {
+    if (!val) return '<span class="muted">—</span>';
+    const c = document.getElementById(val);
+    if (!c) return `<span class="muted">${escHtml(val)} <em>(not found)</em></span>`;
+    const name = readField(c, 'name');
+    return `<a href="#${escHtml(val)}" class="candidate-ref-link">${escHtml(name)} <span class="role-id">${escHtml(val)}</span></a>`;
+  }
+  if (type === 'textarea') return val ? escHtml(val) : '<span class="muted">No notes yet — click to add.</span>';
+  return val ? escHtml(val) : '<span class="muted">—</span>';
+}
+
+function renderDetailRow(tr) {
+  const f = (p) => readField(tr, p);
+  const id = tr.id;
+  const fld = (label, prop, type) => {
+    return `<div>
+      <div class="detail-label">${label}</div>
+      <div class="detail-value editable" data-edit="${prop}" data-type="${type}" data-id="${id}">${fieldDisplay(f(prop), type)}</div>
+    </div>`;
+  };
+
+  const dr = document.createElement('tr');
+  dr.className = 'detail-row';
+  dr.innerHTML = `<td colspan="6">
+    <div class="detail-grid" data-id="${id}">
+      ${fld('Name', 'name', 'text')}
+      ${fld('Role', 'roleId', 'enum-role')}
+      ${fld('Stage', 'stage', 'enum-stage')}
+      ${fld('Owner', 'owner', 'enum-owner')}
+      ${fld('First contact', 'firstContact', 'date')}
+      ${fld('Email', 'email', 'email')}
+      ${fld('Phone', 'phone', 'text')}
+      ${fld('LinkedIn', 'linkedin', 'url')}
+      ${fld('Location', 'location', 'text')}
+      ${fld('Salary expectation', 'salaryExpectation', 'text')}
+      ${fld('Notice period', 'noticePeriod', 'text')}
+      ${fld('CV link', 'cvLink', 'url')}
+      ${fld('Cover letter link', 'coverLetterLink', 'url')}
+      ${fld('Duplicate of', 'duplicateOf', 'candidate-ref')}
+      <div class="notes">
+        <div class="detail-label">Their message <span style="text-transform:none; letter-spacing:0; color:var(--ink-faint); font-size:10px; margin-left:6px;">(from their application)</span></div>
+        <div class="detail-value editable" data-edit="notes" data-type="textarea" data-id="${id}">${fieldDisplay(f('notes'), 'textarea')}</div>
+      </div>
+      <div class="email-section" style="margin-top:24px;">
+        <div class="role-jd-label">Send email</div>
+        <div class="email-composer-slot" data-candidate-id="${id}"></div>
+        <button type="button" class="btn-secondary send-email-btn" data-send-email="${id}" style="margin-top:8px;">\u2709 Compose email</button>
+      </div>
+      <div class="activity-section">
+        <div class="role-jd-label">Activity log <span class="count"><span class="activity-count" data-candidate-id="${id}">${countActivityFor(id)}</span> entries</span></div>
+        <div class="activity-list" data-candidate-id="${id}">${renderActivityListFor(id)}</div>
+        <button type="button" class="btn-secondary add-activity-btn" data-add-activity="${id}" style="margin-top: 12px;">+ Add activity entry</button>
+      </div>
+      <div class="actions">
+        <button class="delete-btn" data-delete="${id}">Delete</button>
+      </div>
+    </div>
+  </td>`;
+  return dr;
+}
+
+/* ---------- Inline field edit ---------- */
+function openFieldEdit(el) {
+  if (el.querySelector('input, textarea, .pill-row[data-edit-mode]')) return;
+  const type = el.dataset.type;
+  const field = el.dataset.edit;
+  const id = el.dataset.id;
+  const tr = document.getElementById(id);
+  if (!tr) return;
+  const currentValue = readField(tr, field);
+
+  if (type === 'text' || type === 'email' || type === 'url' || type === 'date') {
+    const input = document.createElement('input');
+    input.className = 'inline-edit';
+    input.type = type === 'date' ? 'date' : type === 'email' ? 'email' : type === 'url' ? 'url' : 'text';
+    input.value = currentValue;
+    el.replaceChildren(input);
+    input.focus();
+    if (input.type !== 'date') input.select();
+    let committed = false;
+    const commit = (save) => {
+      if (committed) return;
+      committed = true;
+      if (save && input.value !== currentValue) saveField(el, id, field, input.value);
+      else el.innerHTML = fieldDisplay(currentValue, type);
+    };
+    input.addEventListener('blur', () => commit(true));
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+      if (e.key === 'Escape') { e.preventDefault(); committed = true; el.innerHTML = fieldDisplay(currentValue, type); }
+    });
+  } else if (type === 'textarea') {
+    const ta = document.createElement('textarea');
+    ta.className = 'inline-edit';
+    ta.rows = 8;
+    ta.value = currentValue;
+    el.replaceChildren(ta);
+    ta.focus();
+    ta.setSelectionRange(ta.value.length, ta.value.length);
+    let committed = false;
+    const commit = (save) => {
+      if (committed) return;
+      committed = true;
+      if (save && ta.value !== currentValue) saveField(el, id, field, ta.value);
+      else el.innerHTML = fieldDisplay(currentValue, type);
+    };
+    ta.addEventListener('blur', () => commit(true));
+    ta.addEventListener('keydown', e => {
+      if (e.key === 'Escape') { e.preventDefault(); committed = true; el.innerHTML = fieldDisplay(currentValue, type); }
+    });
+  } else if (type === 'candidate-ref') {
+    // Typeahead: text input backed by a datalist of all candidates.
+    const wrapper = document.createElement('div');
+    wrapper.style.position = 'relative';
+    const input = document.createElement('input');
+    input.className = 'inline-edit';
+    input.type = 'text';
+    input.placeholder = 'Type a name…';
+    input.setAttribute('list', 'candidate-ref-datalist-' + id);
+    // Show current value as "Name (C-xxx)" if resolvable, else raw
+    if (currentValue) {
+      const c = document.getElementById(currentValue);
+      input.value = c ? readField(c, 'name') + ' (' + currentValue + ')' : currentValue;
+    }
+    const list = document.createElement('datalist');
+    list.id = 'candidate-ref-datalist-' + id;
+    $$('#candidates-body > tr[id]').forEach(t => {
+      if (t.id === id) return;  // don't allow self-reference
+      const opt = document.createElement('option');
+      const name = readField(t, 'name');
+      opt.value = name + ' (' + t.id + ')';
+      list.appendChild(opt);
+    });
+    wrapper.appendChild(input);
+    wrapper.appendChild(list);
+    // Small clear button
+    const clr = document.createElement('button');
+    clr.type = 'button';
+    clr.className = 'btn-link';
+    clr.textContent = 'clear';
+    clr.style.cssText = 'margin-left:8px; font-size:11px; color:var(--ink-faint); background:none; border:none; cursor:pointer;';
+    clr.addEventListener('mousedown', (e) => { e.preventDefault(); input.value = ''; input.blur(); });
+    wrapper.appendChild(clr);
+    el.replaceChildren(wrapper);
+    input.focus();
+    input.select();
+    let committed = false;
+    const commit = (save) => {
+      if (committed) return;
+      committed = true;
+      if (!save) { el.innerHTML = fieldDisplay(currentValue, type); return; }
+      // Resolve to a candidate id. Accepts: "Name (C-xxx)", "C-xxx", or blank.
+      let v = input.value.trim();
+      let resolved = '';
+      if (v) {
+        // Extract C-xxx pattern from anywhere in the string
+        const idMatch = v.match(/\bC-[a-z0-9]+/i);
+        if (idMatch) {
+          resolved = idMatch[0];
+        } else {
+          // Try exact name match on any candidate row
+          const cand = $$('#candidates-body > tr[id]').find(t => readField(t,'name').toLowerCase() === v.toLowerCase());
+          resolved = cand ? cand.id : '';
+        }
+      }
+      if (resolved !== currentValue) saveField(el, id, field, resolved);
+      else el.innerHTML = fieldDisplay(currentValue, type);
+    };
+    input.addEventListener('blur', () => setTimeout(() => commit(true), 100));
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+      if (e.key === 'Escape') { e.preventDefault(); committed = true; el.innerHTML = fieldDisplay(currentValue, type); }
+    });
+  } else if (type.startsWith('enum-')) {
+    const pillRow = document.createElement('div');
+    pillRow.className = 'pill-row';
+    pillRow.dataset.editMode = '1';
+    let options = [];
+    if (type === 'enum-stage') options = STAGES;
+    else if (type === 'enum-priority') options = ['', ...PRIORITIES];
+    else if (type === 'enum-owner') options = OWNERS;
+    else if (type === 'enum-rating') options = ['', '1','2','3','4','5'];
+    else if (type === 'enum-score') options = ['', '1','2','3','4','5'];
+    else if (type === 'enum-role') options = $$('#roles-body > tr[id]').map(r => r.id);
+    else if (type === 'enum-employmentType') options = EMPLOYMENT_TYPES;
+    else if (type === 'enum-status') options = ROLE_STATUSES;
+    else if (type === 'enum-interviewType') options = INTERVIEW_TYPES;
+    else if (type === 'enum-interviewDecision') options = INTERVIEW_DECISIONS;
+    else if (type === 'enum-candidate') options = $$('#candidates-body > tr[id]').map(t => t.id);
+
+    options.forEach(o => {
+      const b = document.createElement('button');
+      b.className = 'pill' + (o === currentValue ? ' active' : '');
+      if (type === 'enum-priority' && o) b.dataset.priority = o;
+      let label = o || '—';
+      if (type === 'enum-role' && o) label = readField(document.getElementById(o), 'title');
+      if (type === 'enum-candidate' && o) {
+        const c = document.getElementById(o);
+        label = c ? readField(c, 'name') : o;
+      }
+      b.textContent = label;
+      b.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (o !== currentValue) saveField(el, id, field, o);
+        else el.innerHTML = fieldDisplay(currentValue, type);
+      });
+      pillRow.appendChild(b);
+    });
+    const cancel = document.createElement('button');
+    cancel.className = 'pill cancel-pill';
+    cancel.textContent = '✕';
+    cancel.addEventListener('click', (e) => { e.stopPropagation(); el.innerHTML = fieldDisplay(currentValue, type); });
+    pillRow.appendChild(cancel);
+
+    el.replaceChildren(pillRow);
+  }
+}
+
+async function saveField(el, id, field, newValue) {
+  const tr = document.getElementById(id);
+  if (!tr) return;
+  const entity = el.dataset.entity || 'candidate';
+  const fields = ENTITY_FIELDS[entity];
+  const RENDERERS = { candidate: renderCandidateRow, role: renderRoleRow, interview: renderInterviewRow };
+  const renderer = RENDERERS[entity];
+  const data = {};
+  fields.forEach(p => data[p] = readField(tr, p));
+  data[field] = newValue;
+  const html = renderer(data);
+  el.classList.add('saving');
+  try {
+    await httpPUT(tr, html);
+    el.classList.remove('saving');
+    const updatedTr = document.getElementById(id);
+    el.innerHTML = fieldDisplay(readField(updatedTr, field), el.dataset.type);
+    el.classList.add('saved');
+    setTimeout(() => el.classList.remove('saved'), 800);
+    // Auto-log stage changes so Last Activity moves.
+    if (entity === 'candidate' && field === 'stage') {
+      const prev = readField(tr, 'stage');
+      // Note: at this point the row has already been re-rendered with the new stage,
+      // so `prev` above reflects the new value. Compare against the pre-save capture instead.
+      // (Kept simple: always log a stage change on save, since inline edits only fire on actual change.)
+      try {
+        const act = {
+          id: nextId('L', '#activity-body'),
+          date: new Date().toISOString().slice(0, 10),
+          candidateId: id,
+          type: 'Stage change',
+          summary: 'Stage \u2192 ' + newValue,
+        };
+        await httpPOST($('#activity-body'), renderActivityRow(act));
+        refreshActivityList(id);
+      } catch (e) { console.warn('stage-change activity log failed:', e); }
+    }
+    refreshLastActivity();
+    if (entity === 'candidate') {
+      applyFilters();
+      applySort();
+    } else if (entity === 'role') {
+      // role title change → refresh role filter pills + any open candidate detail role-link displays
+      if (field === 'title') repopulateRoleFilters();
+    }
+  } catch (err) {
+    console.error(err);
+    el.classList.remove('saving');
+    el.innerHTML = fieldDisplay(readField(tr, field), el.dataset.type);
+    alert('Save failed: ' + (err.message || err));
+  }
+}
+
+/* ---------- Activity log (nested per candidate) ---------- */
+
+function renderEmailTemplateRow(t) {
+  return `<tr id="${escHtml(t.id)}" itemscope itemtype="https://pagelove.org/EmailTemplate">
+    <td itemprop="id">${escHtml(t.id)}</td>
+    <td itemprop="label">${escHtml(t.label||'')}</td>
+    <td itemprop="subject">${escHtml(t.subject||'')}</td>
+    <td itemprop="body" style="white-space:pre-wrap">${escHtml(t.body||'')}</td>
+  </tr>`;
+}
+
+function getCustomEmailTemplates() {
+  return $$('#email-templates-body > tr[id]').map(tr => ({
+    id: tr.id,
+    label: readField(tr, 'label'),
+    subject: readField(tr, 'subject'),
+    body: readField(tr, 'body'),
+    custom: true,
+  }));
+}
+
+function renderActivityRow(a) {
+  return `<tr id="${escHtml(a.id)}" itemscope itemtype="https://pagelove.org/ActivityLog">
+    <td itemprop="id">${escHtml(a.id)}</td>
+    <td><time itemprop="date" datetime="${escHtml(a.date||'')}">${a.date ? fmtDate(a.date) : ''}</time></td>
+    <td><span itemprop="candidateId">${escHtml(a.candidateId||'')}</span></td>
+    <td itemprop="type">${escHtml(a.type||'')}</td>
+    <td itemprop="summary">${escHtml(a.summary||'')}</td>
+  </tr>`;
+}
+
+function countActivityFor(candidateId) {
+  return $$('#activity-body > tr[itemtype]')
+    .filter(tr => readField(tr, 'candidateId') === candidateId).length;
+}
+
+function renderActivityCard(tr) {
+  const id = tr.id;
+  const date = readField(tr, 'date');
+  const type = readField(tr, 'type');
+  const summary = readField(tr, 'summary');
+  return `<div class="activity-card" data-activity-id="${escHtml(id)}">
+    <div class="activity-meta">
+      <time class="activity-date" datetime="${escHtml(date)}">${date ? fmtDate(date) : '—'}</time>
+      <span class="activity-type">${escHtml(type||'—')}</span>
+      <span class="activity-id">${escHtml(id)}</span>
+      <button class="activity-delete-btn" data-delete-activity="${escHtml(id)}" aria-label="Delete">×</button>
+    </div>
+    <div class="activity-summary">${escHtml(summary||'(no summary)')}</div>
+  </div>`;
+}
+
+function renderActivityListFor(candidateId) {
+  const entries = $$('#activity-body > tr[itemtype]')
+    .filter(tr => readField(tr, 'candidateId') === candidateId)
+    .sort((a, b) => {
+      const da = readField(a, 'date') || '';
+      const db = readField(b, 'date') || '';
+      return db.localeCompare(da);
+    });
+  if (entries.length === 0) {
+    return '<div class="activity-empty muted">No activity logged yet — click + below to add.</div>';
+  }
+  return entries.map(renderActivityCard).join('');
+}
+
+function renderActivityForm(candidateId, existingId = '') {
+  const today = new Date().toISOString().slice(0, 10);
+  let prefill = { date: today, type: 'Note', summary: '' };
+  if (existingId) {
+    const tr = document.getElementById(existingId);
+    if (tr) {
+      prefill.date = readField(tr, 'date') || today;
+      prefill.type = readField(tr, 'type') || 'Note';
+      prefill.summary = readField(tr, 'summary') || '';
+    }
+  }
+
+  const pillGroup = (name, options, current) => {
+    return `<div class="pill-group" data-name="${name}" data-required="1">
+      ${options.map(o => `<button type="button" class="pill${o === current ? ' active' : ''}" data-value="${escHtml(o)}">${escHtml(o)}</button>`).join('')}
+    </div>`;
+  };
+
+  return `<form class="activity-form" data-candidate-id="${escHtml(candidateId)}" data-id="${escHtml(existingId)}">
+    <div class="activity-form-row">
+      <input type="date" name="date" required value="${escHtml(prefill.date)}">
+      <input type="hidden" name="candidateId" value="${escHtml(candidateId)}">
+    </div>
+    <div class="activity-form-row">
+      ${pillGroup('type', ACTIVITY_TYPES, prefill.type)}
+    </div>
+    <div class="activity-form-row">
+      <input type="text" name="summary" required placeholder="What happened?" value="${escHtml(prefill.summary)}">
+    </div>
+    <div class="activity-form-actions">
+      <button type="submit" class="btn-primary">${existingId ? 'Save changes' : 'Add entry'}</button>
+      <button type="button" class="btn-secondary activity-cancel-btn">Cancel</button>
+    </div>
+  </form>`;
+}
+
+function refreshActivityList(candidateId) {
+  const list = $(`.activity-list[data-candidate-id="${candidateId}"]`);
+  if (list) list.innerHTML = renderActivityListFor(candidateId);
+  const countEl = $(`.activity-count[data-candidate-id="${candidateId}"]`);
+  if (countEl) countEl.textContent = countActivityFor(candidateId);
+}
+
+/* ---------- Interviews: render, expand, form ---------- */
+function renderInterviewRow(i) {
+  const cTr = i.candidateId ? document.getElementById(i.candidateId) : null;
+  const cName = cTr ? readField(cTr, 'name') : '—';
+  const score = +i.score || 0;
+  const scoreDisplay = score ? `<span class="rating">${'●'.repeat(score)}${'○'.repeat(5-score)}</span>` : '<span class="muted">—</span>';
+  const decision = i.decision || '';
+  const decisionCls = decision === 'Strong Yes' ? 'decision-strong-yes' : decision === 'Strong No' ? 'decision-strong-no' : decision === 'Yes' ? 'decision-yes' : decision === 'No' ? 'decision-no' : 'decision-pending';
+  return `<tr id="${escHtml(i.id)}" itemscope itemtype="https://pagelove.org/Interview">
+    <td class="id" itemprop="id">${escHtml(i.id)}</td>
+    <td><a href="#${escHtml(i.candidateId)}" class="role-link"><span class="role-title">${escHtml(cName)}</span><span class="role-id" itemprop="candidateId">${escHtml(i.candidateId||'')}</span></a></td>
+    <td itemprop="type">${escHtml(i.type||'')}</td>
+    <td><time itemprop="date" datetime="${escHtml(i.date||'')}">${i.date ? fmtDate(i.date) : '—'}</time></td>
+    <td>${decision ? `<span class="decision ${decisionCls}">${escHtml(decision)}</span>` : '<span class="muted">—</span>'}<span hidden itemprop="decision">${escHtml(decision)}</span></td>
+    <td>${scoreDisplay}<span hidden itemprop="score">${escHtml(i.score||'')}</span></td>
+    <td hidden itemprop="duration">${escHtml(i.duration||'')}</td>
+    <td hidden itemprop="interviewers">${escHtml(i.interviewers||'')}</td>
+    <td hidden itemprop="notes">${escHtml(i.notes||'')}</td>
+  </tr>`;
+}
+
+function renderInterviewDetailRow(tr) {
+  const f = (p) => readField(tr, p);
+  const id = tr.id;
+  const fld = (label, prop, type) => {
+    return `<div>
+      <div class="detail-label">${label}</div>
+      <div class="detail-value editable" data-edit="${prop}" data-type="${type}" data-id="${id}" data-entity="interview">${fieldDisplay(f(prop), type)}</div>
+    </div>`;
+  };
+
+  const dr = document.createElement('tr');
+  dr.className = 'detail-row';
+  dr.innerHTML = `<td colspan="6">
+    <div class="detail-grid" data-id="${id}">
+      ${fld('Candidate', 'candidateId', 'enum-candidate')}
+      ${fld('Type', 'type', 'enum-interviewType')}
+      ${fld('Date', 'date', 'date')}
+      ${fld('Duration', 'duration', 'text')}
+      ${fld('Interviewers', 'interviewers', 'text')}
+      ${fld('Decision', 'decision', 'enum-interviewDecision')}
+      ${fld('Score', 'score', 'enum-score')}
+      <div class="notes">
+        <div class="detail-label">Post-interview notes</div>
+        <div class="detail-value editable" data-edit="notes" data-type="textarea" data-id="${id}" data-entity="interview">${fieldDisplay(f('notes'), 'textarea')}</div>
+      </div>
+      <div class="actions">
+        <button class="delete-btn" data-delete-interview="${id}">Delete interview</button>
+      </div>
+    </div>
+  </td>`;
+  return dr;
+}
+
+function toggleExpandInterview(tr) {
+  const next = tr.nextElementSibling;
+  if (next?.classList.contains('detail-row')) { next.remove(); return; }
+  if (next?.classList.contains('form-row') || next?.classList.contains('confirm-row')) return;
+  tr.after(renderInterviewDetailRow(tr));
+}
+
+function showInterviewDeleteConfirm(id) {
+  const tr = $('#' + id);
+  if (!tr) return;
+  const detail = tr.nextElementSibling;
+  if (detail?.classList.contains('detail-row')) detail.remove();
+  const c = document.createElement('tr');
+  c.className = 'confirm-row';
+  c.innerHTML = `<td colspan="6">
+    <span>Delete interview ${escHtml(id)}? This cannot be undone.</span>
+    <button class="btn-danger" data-confirm-interview="${escHtml(id)}">Yes, delete</button>
+    <button class="btn-secondary cancel-confirm">Cancel</button>
+  </td>`;
+  tr.after(c);
+}
+
+function openInterviewForm(presetCandidateId = '') {
+  const id = nextId('I', '#interviews-body');
+  const today = new Date().toISOString().slice(0, 10);
+
+  const pillGroup = (name, options, current, required) => {
+    const opts = options.map(o => typeof o === 'object' ? o : { value: o, label: o || '—' });
+    return `<div class="pill-group" data-name="${name}"${required ? ' data-required="1"' : ''}>
+      ${opts.map(o => `<button type="button" class="pill${o.value === current ? ' active' : ''}" data-value="${escHtml(o.value)}">${escHtml(o.label)}</button>`).join('')}
+    </div>`;
+  };
+
+  const candidateOptions = $$('#candidates-body > tr[id]').map(t => ({
+    value: t.id,
+    label: readField(t, 'name'),
+  }));
+  const typeOptions = INTERVIEW_TYPES.map(t => ({value: t, label: t}));
+  const decisionOptions = INTERVIEW_DECISIONS.map(d => ({value: d, label: d}));
+  const scoreOptions = [{value:'',label:'—'},{value:'1',label:'1'},{value:'2',label:'2'},{value:'3',label:'3'},{value:'4',label:'4'},{value:'5',label:'5'}];
+
+  const formTr = document.createElement('tr');
+  formTr.className = 'form-row';
+  formTr.dataset.id = id;
+  formTr.innerHTML = `<td colspan="6">
+    <form class="interview-form">
+      <div class="form-grid">
+        <label class="full">Candidate *${pillGroup('candidateId', candidateOptions, presetCandidateId, true)}</label>
+        <label class="full">Type *${pillGroup('type', typeOptions, 'Screen Call', true)}</label>
+        <label>Date *<input type="date" name="date" required value="${today}"></label>
+        <label>Duration<input type="text" name="duration" placeholder="30 min"></label>
+        <label class="full">Interviewers<input type="text" name="interviewers" placeholder="Comma-separated names"></label>
+        <label class="full">Decision${pillGroup('decision', decisionOptions, 'Pending')}</label>
+        <label class="full">Score (1–5)${pillGroup('score', scoreOptions, '')}</label>
+        <label class="full">Post-interview notes<textarea name="notes" rows="6" placeholder="Observations, scores against key requirements, follow-ups..."></textarea></label>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn-primary">Create interview</button>
+        <button type="button" class="btn-secondary cancel-btn">Cancel</button>
+      </div>
+    </form>
+  </td>`;
+
+  formTr.querySelectorAll('.pill-group').forEach(group => {
+    group.addEventListener('click', (e) => {
+      const pill = e.target.closest('.pill');
+      if (!pill) return;
+      group.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+    });
+  });
+
+  $('#interviews-body').prepend(formTr);
+  setTimeout(() => formTr.querySelector('input[name="date"]')?.focus(), 0);
+}
+
+/* ---------- Roles: render, kanban, expand, form ---------- */
+function renderRoleRow(r) {
+  return `<tr id="${escHtml(r.id)}" itemscope itemtype="https://pagelove.org/Role">
+    <td class="id" itemprop="id">${escHtml(r.id)}</td>
+    <td><div class="name" itemprop="title">${escHtml(r.title||'')}</div></td>
+    <td itemprop="department">${escHtml(r.department||'')}</td>
+    <td itemprop="hiringManager">${escHtml(r.hiringManager||'')}</td>
+    <td itemprop="employmentType">${escHtml(r.employmentType||'')}</td>
+    <td itemprop="status">${escHtml(r.status||'')}</td>
+    <td hidden itemprop="location">${escHtml(r.location||'')}</td>
+    <td hidden><time itemprop="targetStart" datetime="${escHtml(r.targetStart||'')}">${r.targetStart ? fmtDate(r.targetStart) : ''}</time></td>
+    <td hidden itemprop="slug">${escHtml(r.slug||slugify(r.title||''))}</td>
+    <td hidden itemprop="tldr">${escHtml(r.tldr||'')}</td>
+    <td hidden itemprop="salary">${escHtml(r.salary||'')}</td>
+    <td hidden itemprop="notes">${escHtml(r.notes||'')}</td>
+  </tr>`;
+}
+
+function renderKanban(roleId) {
+  const cands = $$('#candidates-body > tr[itemtype]')
+    .filter(tr => readField(tr, 'roleId') === roleId);
+  const byStage = {};
+  STAGES.forEach(s => byStage[s] = []);
+  cands.forEach(c => {
+    const stage = readField(c, 'stage') || 'Sourced';
+    if (byStage[stage]) byStage[stage].push(c);
+  });
+
+  const cols = STAGES.map(stage => {
+    const list = byStage[stage];
+    return `<div class="kanban-col" data-stage="${stage}">
+      <div class="kanban-col-header">${stage}<span class="count">${list.length}</span></div>
+      ${list.length ? list.map(c => {
+        const name = readField(c, 'name');
+        const owner = readField(c, 'owner');
+        const priority = readField(c, 'priority');
+        return `<a class="kanban-card" href="#${c.id}" data-priority="${escHtml(priority)}" data-candidate-id="${escHtml(c.id)}">
+          <div class="card-name">${escHtml(name)}</div>
+          <div class="card-meta">${escHtml(owner||'—')} · ${escHtml(c.id)}</div>
+        </a>`;
+      }).join('') : '<div class="kanban-empty">—</div>'}
+    </div>`;
+  }).join('');
+
+  return `<div class="kanban-wrap">
+    <h3>Pipeline <span class="count">${cands.length} candidate${cands.length === 1 ? '' : 's'}</span></h3>
+    <div class="kanban">${cols}</div>
+  </div>`;
+}
+
+function renderRoleDetailRow(tr) {
+  const f = (p) => readField(tr, p);
+  const id = tr.id;
+  const fld = (label, prop, type) => {
+    return `<div>
+      <div class="detail-label">${label}</div>
+      <div class="detail-value editable" data-edit="${prop}" data-type="${type}" data-id="${id}" data-entity="role">${fieldDisplay(f(prop), type)}</div>
+    </div>`;
+  };
+
+  const dr = document.createElement('tr');
+  dr.className = 'detail-row';
+  dr.innerHTML = `<td colspan="6">
+    <div class="detail-grid" data-id="${id}">
+      ${fld('Title', 'title', 'text')}
+      ${fld('Department', 'department', 'text')}
+      ${fld('Hiring manager', 'hiringManager', 'text')}
+      ${fld('Type', 'employmentType', 'enum-employmentType')}
+      ${fld('Status', 'status', 'enum-status')}
+      ${fld('Location', 'location', 'text')}
+      ${fld('Target start', 'targetStart', 'date')}
+      ${fld('TL;DR (one-line summary)', 'tldr', 'text')}
+      ${fld('URL slug (SEO — appears in the public URL)', 'slug', 'text')}
+      ${fld('Salary', 'salary', 'text')}
+    </div>
+
+    <div class="role-public-url">
+      <div class="detail-label">Public URL</div>
+      <div class="public-url-row">
+        <a class="public-url-link" href="/roles/${f('slug') || slugify(f('title'))}/" target="_blank" rel="noopener">https://huge-stomp-7042.onpagelove.com/roles/${f('slug') || slugify(f('title'))}/</a>
+        <button type="button" class="btn-secondary copy-public-url-btn" data-copy-url="https://huge-stomp-7042.onpagelove.com/roles/${f('slug') || slugify(f('title'))}/">Copy link</button>
+        <a class="btn-secondary" href="/roles/${f('slug') || slugify(f('title'))}/" target="_blank" rel="noopener" style="text-decoration:none">Open ↗</a>
+      </div>
+      <div class="public-url-sub">Share this on LinkedIn, X, Slack — the page is fully SSR'd, LinkedIn/AI-readable, updates when you edit any field here.</div>
+    </div>
+
+    ${renderKanban(id)}
+
+    <div class="role-jd">
+      <div class="role-jd-label">Job description</div>
+      <div class="editable" data-edit="notes" data-type="textarea" data-id="${id}" data-entity="role">${fieldDisplay(f('notes'), 'textarea')}</div>
+    </div>
+
+    <div class="actions" style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--rule); display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+      <button type="button" class="btn-secondary download-cvs-btn" data-download-cvs="${id}">\u2b07 Download CVs</button>
+      <select class="download-cvs-stage" data-role-id="${id}" style="font-size:13px; padding:4px 8px; border:1px solid var(--rule); border-radius:2px; background:var(--paper);">
+        <option value="">All stages</option>
+        ${STAGES.filter(s => !['Rejected','Withdrew','Duplicate'].includes(s)).map(s => `<option value="${s}">${s} only</option>`).join('')}
+        <option value="Rejected">Rejected only</option>
+      </select>
+      <span class="download-cvs-status" style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink-faint);"></span>
+      <span style="margin-left:auto;"></span>
+      <button class="delete-btn" data-delete-role="${id}">Delete role</button>
+    </div>
+  </td>`;
+  return dr;
+}
+
+
+/* Lazy-load JSZip on first use, then never again. */
+async function ensureJSZip() {
+  if (window.JSZip) return window.JSZip;
+  await new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+    s.onload = res;
+    s.onerror = () => rej(new Error('Failed to load JSZip'));
+    document.head.appendChild(s);
+  });
+  return window.JSZip;
+}
+
+async function downloadRoleCVs(roleId, stageFilter, statusEl) {
+  const roleTr = document.getElementById(roleId);
+  const roleTitle = roleTr ? readField(roleTr, 'title') : roleId;
+  const slug = roleTr ? (readField(roleTr, 'slug') || slugify(roleTitle)) : roleId;
+
+  // Find candidates for this role, optionally filtered by stage
+  const targets = $$('#candidates-body > tr[itemtype]')
+    .filter(tr => readField(tr, 'roleId') === roleId)
+    .filter(tr => !stageFilter || readField(tr, 'stage') === stageFilter)
+    .map(tr => ({
+      id: tr.id,
+      name: readField(tr, 'name'),
+      cv: readField(tr, 'cvLink'),
+      cover: readField(tr, 'coverLetterLink'),
+    }))
+    .filter(c => c.cv);
+
+  if (!targets.length) {
+    statusEl.textContent = 'No candidates with CVs matched.';
+    return;
+  }
+  statusEl.textContent = `Loading zip library\u2026`;
+  const JSZip = await ensureJSZip();
+  const zip = new JSZip();
+  let ok = 0, failed = 0;
+
+  const safeName = s => String(s || 'unnamed').replace(/[^A-Za-z0-9._-]+/g, '-').replace(/^-|-$/g, '');
+  const extFrom = url => (url.match(/\.([a-z0-9]{2,5})(?:$|[?#])/i)?.[1] || 'pdf').toLowerCase();
+
+  for (let i = 0; i < targets.length; i++) {
+    const t = targets[i];
+    statusEl.textContent = `Fetching ${i+1}/${targets.length}: ${t.name}\u2026`;
+    try {
+      const resp = await fetch(t.cv, { credentials: 'same-origin' });
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const blob = await resp.blob();
+      zip.file(`${safeName(t.name)} (${t.id}).${extFrom(t.cv)}`, blob);
+      // Also grab the cover if present
+      if (t.cover) {
+        try {
+          const cr = await fetch(t.cover, { credentials: 'same-origin' });
+          if (cr.ok) {
+            const cb = await cr.blob();
+            zip.file(`${safeName(t.name)} (${t.id}) - cover.${extFrom(t.cover)}`, cb);
+          }
+        } catch (_) { /* cover is optional */ }
+      }
+      ok++;
+    } catch (err) {
+      console.warn('CV fetch failed for', t.id, err);
+      failed++;
+    }
+  }
+
+  statusEl.textContent = `Zipping ${ok} CV${ok===1?'':'s'}${failed?` (${failed} failed)`:''}\u2026`;
+  const zipBlob = await zip.generateAsync({ type: 'blob' });
+  const url = URL.createObjectURL(zipBlob);
+  const a = document.createElement('a');
+  const stageSuffix = stageFilter ? '-' + slugify(stageFilter) : '';
+  a.href = url;
+  a.download = `${slug}${stageSuffix}-cvs.zip`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  statusEl.textContent = `Downloaded ${ok} CV${ok===1?'':'s'}${failed?` (${failed} failed — see console)`:''}.`;
+}
+
+function toggleExpandRole(tr) {
+  const next = tr.nextElementSibling;
+  if (next?.classList.contains('detail-row')) {
+    next.remove();
+    return;
+  }
+  if (next?.classList.contains('form-row') || next?.classList.contains('confirm-row')) return;
+  tr.after(renderRoleDetailRow(tr));
+}
+
+function countCandidatesForRole(roleId) {
+  return $$('#candidates-body > tr[itemtype]').filter(tr => readField(tr, 'roleId') === roleId).length;
+}
+
+function showRoleDeleteConfirm(id) {
+  const tr = $('#' + id);
+  if (!tr) return;
+  const detail = tr.nextElementSibling;
+  if (detail?.classList.contains('detail-row')) detail.remove();
+  const count = countCandidatesForRole(id);
+  const c = document.createElement('tr');
+  c.className = 'confirm-row';
+  c.innerHTML = `<td colspan="6">
+    <span>Delete ${escHtml(id)}? ${count > 0 ? `${count} candidate${count === 1 ? '' : 's'} still assigned to this role — they will be left without a role.` : 'This cannot be undone.'}</span>
+    <button class="btn-danger" data-confirm-role="${escHtml(id)}">Yes, delete</button>
+    <button class="btn-secondary cancel-confirm">Cancel</button>
+  </td>`;
+  tr.after(c);
+}
+
+function repopulateRoleFilters() {
+  const roleRow = $('#roleFilters');
+  if (!roleRow) return;
+  // remove all .pill elements but keep the label
+  roleRow.querySelectorAll('.pill').forEach(p => p.remove());
+  const allBtn = document.createElement('button');
+  allBtn.className = 'pill' + (state.role === '' ? ' active' : '');
+  allBtn.dataset.value = '';
+  allBtn.textContent = 'All';
+  allBtn.addEventListener('click', () => {
+    $$('#roleFilters .pill').forEach(p => p.classList.remove('active'));
+    allBtn.classList.add('active');
+    state.role = '';
+    applyFilters();
+  });
+  roleRow.appendChild(allBtn);
+  $$('#roles-body > tr[id]').forEach(tr => {
+    const b = document.createElement('button');
+    b.className = 'pill' + (state.role === tr.id ? ' active' : '');
+    b.dataset.value = tr.id;
+    b.textContent = readField(tr, 'title');
+    b.addEventListener('click', () => {
+      $$('#roleFilters .pill').forEach(p => p.classList.remove('active'));
+      b.classList.add('active');
+      state.role = tr.id;
+      applyFilters();
+    });
+    roleRow.appendChild(b);
+  });
+}
+
+function openRoleForm() {
+  const id = nextId('R', '#roles-body');
+  const today = new Date().toISOString().slice(0, 10);
+
+  const pillGroup = (name, options, current, required) => {
+    const opts = options.map(o => typeof o === 'object' ? o : { value: o, label: o || '—' });
+    return `<div class="pill-group" data-name="${name}"${required ? ' data-required="1"' : ''}>
+      ${opts.map(o => {
+        const dataAttr = name === 'priority' && o.value ? ` data-priority="${escHtml(o.value)}"` : '';
+        return `<button type="button" class="pill${o.value === current ? ' active' : ''}"${dataAttr} data-value="${escHtml(o.value)}">${escHtml(o.label)}</button>`;
+      }).join('')}
+    </div>`;
+  };
+
+  const employmentTypeOptions = EMPLOYMENT_TYPES.map(t => ({value: t, label: t}));
+  const statusOptions = ROLE_STATUSES.map(s => ({value: s, label: s}));
+  const priorityOptions = [{value:'',label:'—'}, ...PRIORITIES.map(p => ({value:p, label:p}))];
+
+  const formTr = document.createElement('tr');
+  formTr.className = 'form-row';
+  formTr.dataset.id = id;
+  formTr.innerHTML = `<td colspan="6">
+    <form class="role-form">
+      <div class="form-grid">
+        <label class="full">Title *<input name="title" required></label>
+        <label class="full">Type *${pillGroup('employmentType', employmentTypeOptions, 'Full-time', true)}</label>
+        <label class="full">Status *${pillGroup('status', statusOptions, 'Open', true)}</label>
+        <label>Department<input name="department"></label>
+        <label>Hiring manager *<input name="hiringManager" required></label>
+        <label>Location<input name="location"></label>
+        <label>Target start<input type="date" name="targetStart"></label>
+        <label class="full">Job description<textarea name="notes" rows="6" placeholder="Paste or write the JD here..."></textarea></label>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn-primary">Create role</button>
+        <button type="button" class="btn-secondary cancel-btn">Cancel</button>
+      </div>
+    </form>
+  </td>`;
+
+  formTr.querySelectorAll('.pill-group').forEach(group => {
+    group.addEventListener('click', (e) => {
+      const pill = e.target.closest('.pill');
+      if (!pill) return;
+      group.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+    });
+  });
+
+  $('#roles-body').prepend(formTr);
+  setTimeout(() => formTr.querySelector('input[name="title"]')?.focus(), 0);
+}
+
+/* ---------- Add candidate form (creation only; edits are inline) ---------- */
+function openCandidateForm() {
+  const id = nextId('C', '#candidates-body');
+  const today = new Date().toISOString().slice(0,10);
+
+  const pillGroup = (name, options, current, required) => {
+    const opts = options.map(o => typeof o === 'object' ? o : { value: o, label: o || '—' });
+    return `<div class="pill-group" data-name="${name}"${required ? ' data-required="1"' : ''}>
+      ${opts.map(o => {
+        const dataAttr = name === 'priority' && o.value ? ` data-priority="${escHtml(o.value)}"` : '';
+        return `<button type="button" class="pill${o.value === current ? ' active' : ''}"${dataAttr} data-value="${escHtml(o.value)}">${escHtml(o.label)}</button>`;
+      }).join('')}
+    </div>`;
+  };
+
+  const roleOptions = $$('#roles-body > tr[id]').map(r => ({ value: r.id, label: readField(r,'title') }));
+  const sourceOptions = [{value:'',label:'—'}, ...SOURCES.map(s => ({value:s, label:s}))];
+  const priorityOptions = [{value:'',label:'—'}, ...PRIORITIES.map(p => ({value:p, label:p}))];
+
+  const formTr = document.createElement('tr');
+  formTr.className = 'form-row';
+  formTr.dataset.id = id;
+  formTr.innerHTML = `<td colspan="6">
+    <form class="candidate-form">
+      <div class="form-grid">
+        <label class="full">Name *<input name="name" required></label>
+        <label class="full">Role *${pillGroup('roleId', roleOptions, '', true)}</label>
+        <label class="full">Stage *${pillGroup('stage', STAGES, 'Sourced', true)}</label>
+        <label class="full">Owner *${pillGroup('owner', OWNERS, OWNERS[0], true)}</label>
+        <label>First contact *<input type="date" name="firstContact" required value="${today}"></label>
+        <label>Email<input type="email" name="email"></label>
+        <label>Phone<input type="text" name="phone"></label>
+        <label>LinkedIn<input type="url" name="linkedin"></label>
+        <label>Location<input type="text" name="location"></label>
+        <label>Salary expectation<input type="text" name="salaryExpectation"></label>
+        <label>Notice period<input type="text" name="noticePeriod"></label>
+        <label class="full">Notes<textarea name="notes" rows="3"></textarea></label>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn-primary">Create candidate</button>
+        <button type="button" class="btn-secondary cancel-btn">Cancel</button>
+      </div>
+    </form>
+  </td>`;
+
+  // Pill group click handling — toggle active pill, no form submit
+  formTr.querySelectorAll('.pill-group').forEach(group => {
+    group.addEventListener('click', (e) => {
+      const pill = e.target.closest('.pill');
+      if (!pill) return;
+      group.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+    });
+  });
+
+  $('#candidates-body').prepend(formTr);
+  setTimeout(() => formTr.querySelector('input[name="name"]')?.focus(), 0);
+}
+
+/* ---------- Activity form submit (separate handler — different DOM shape) ---------- */
+document.addEventListener('submit', async (e) => {
+  const form = e.target.closest('form.activity-form');
+  if (!form) return;
+  e.preventDefault();
+  const data = {};
+  form.querySelectorAll('input[name]').forEach(el => data[el.name] = el.value);
+  form.querySelectorAll('.pill-group').forEach(g => {
+    data[g.dataset.name] = g.querySelector('.pill.active')?.dataset.value || '';
+  });
+  if (!data.type) {
+    alert('Please pick a type.');
+    return;
+  }
+  const editingId = form.dataset.id;
+  const isEdit = !!editingId && document.getElementById(editingId);
+  data.id = editingId || nextId('L', '#activity-body');
+  const html = renderActivityRow(data);
+  try {
+    if (isEdit) {
+      await httpPUT(document.getElementById(data.id), html);
+    } else {
+      await httpPOST($('#activity-body'), html);
+    }
+    refreshActivityList(data.candidateId);
+    refreshLastActivity();
+  } catch (err) {
+    console.error(err);
+    alert('Save failed: ' + (err.message || err));
+  }
+});
+
+/* ---------- Form submit (candidate, role, interview) ---------- */
+
+/* ================================================================
+ * "New role from JD" flow — upload .md/.html/.txt (or paste text), parse the
+ * consistent Example Co JD format into structured role fields, then
+ * on submit create both the ATS role row AND the /role/{id}.html
+ * SSR page for the new role.
+ * ================================================================ */
+
+const JD_SECTION_HEADS = [
+  'About Example Co',
+  'Who we are / What we look for in everyone we hire',
+  'Why this role',
+  'This role',
+  "What we're looking for",
+  'Location',
+  'Employment type',
+  'What we offer',
+  'Reporting to',
+];
+const JD_LISTY_SECTIONS = new Set([
+  'Who we are / What we look for in everyone we hire',
+  'This role',
+  "What we're looking for",
+  'What we offer',
+]);
+
+function parseJD(text) {
+  // Normalise curly punctuation + whitespace
+  text = (typeof normalizeExtractedText === 'function' ? normalizeExtractedText(text) : String(text || ''));
+  const lines = text.split(/\r?\n/)
+    .map(l => l.replace(/^\s*#+\s+/, '').trim())  // strip markdown heading markers
+    .filter(Boolean);
+  if (!lines.length) return {};
+
+  const title = lines[0];
+  let idx = 1;
+  if (idx < lines.length && lines[idx].toLowerCase() === 'pagelove') idx++;
+
+  const sections = {};
+  let current = null;
+  for (const ln of lines.slice(idx)) {
+    if (JD_SECTION_HEADS.includes(ln)) { current = ln; sections[current] = []; }
+    else if (current) sections[current].push(ln);
+  }
+
+  // tldr = first sentence of "Why this role"
+  let tldr = '';
+  const why = sections['Why this role'];
+  if (why && why[0]) {
+    const m = (why[0] + ' ').match(/^(.+?[.!?])\s/);
+    tldr = m ? m[1] : why[0];
+    if (tldr.length > 240) tldr = tldr.slice(0, 237) + '...';
+  }
+
+  // salary from "What we offer"
+  let salary = '';
+  for (const ln of (sections['What we offer'] || [])) {
+    const m = ln.match(/^[\s•·▪●\-*]*Salary(?:\s*range)?\s*:\s*(.+)$/i);
+    if (m) { salary = m[1].trim(); break; }
+  }
+
+  // employment type
+  const et = (sections['Employment type'] || []).join(' ').toLowerCase();
+  const employmentType =
+      et.includes('contract') ? 'Contract'
+    : et.includes('part-time') || (et.includes('part') && !et.includes('participant')) ? 'Part-time'
+    : et.includes('advisor') ? 'Advisor'
+    : 'Full-time';
+
+  // hiring manager (first name of the "Reporting to" line)
+  let hiringManager = '';
+  const rt = sections['Reporting to'];
+  if (rt && rt[0]) hiringManager = rt[0].split(',')[0].trim().split(/\s+/)[0];
+
+  // location
+  const loc = (sections['Location'] || []).join(' ');
+  const location = /\b(global|distributed|remote|flexible)\b/i.test(loc) ? 'Global' : loc.slice(0, 80);
+
+  // notes = full JD as markdown
+  const md = [];
+  for (const head of JD_SECTION_HEADS) {
+    const body = sections[head];
+    if (!body) continue;
+    md.push('## ' + head);
+    if (JD_LISTY_SECTIONS.has(head)) {
+      const items = mergeWrappedBullets(body);
+      for (const ln of items) md.push('- ' + ln);
+    } else {
+      for (const ln of body) md.push(ln);
+    }
+    md.push('');
+  }
+  const notes = md.join('\n').trim();
+
+  return {
+    title, slug: slugify(title), department: '', hiringManager, employmentType,
+    status: 'Open', priority: 'Medium', location, targetStart: '',
+    tldr, salary, notes,
+  };
+}
+
+/* If a listy section has • markers, merge continuation lines into the previous bullet.
+   If no markers (already one-per-line as in clean MD), return trimmed lines as-is. */
+function mergeWrappedBullets(rawLines) {
+  const trimmed = rawLines.map(l => l.trim()).filter(Boolean);
+  const markerRe = /^[-*•·▪●]\s+/;
+  const hasMarkers = trimmed.some(l => markerRe.test(l));
+  if (!hasMarkers) return trimmed;
+  const items = [];
+  for (const ln of trimmed) {
+    if (markerRe.test(ln)) {
+      items.push(ln.replace(markerRe, '').trim());
+    } else if (items.length) {
+      items[items.length - 1] += ' ' + ln;
+    } else {
+      items.push(ln);
+    }
+  }
+  return items.map(x => x.replace(/\s+/g, ' ').trim()).filter(Boolean);
+}
+
+
+
+/* Normalise pasted/uploaded JD text: straighten curly quotes, collapse whitespace. */
+function normalizeExtractedText(text) {
+  return String(text || '')
+    .replace(/[’‘]/g, "'")
+    .replace(/[“”]/g, '"')
+    .replace(/…/g, '...')
+    .split('\n').map(l => l.replace(/[ \t]+/g, ' ').trimEnd()).join('\n');
+}
+
+/* ---------- JD file reader (.md / .html / .txt) ---------- */
+async function readJDFile(file) {
+  const name = (file.name || '').toLowerCase();
+  const text = await file.text();
+  if (/\.(html?|xhtml)$/.test(name) || /^\s*<(!doctype|html|body|div|section|article|h1|main)\b/i.test(text)) {
+    const doc = new DOMParser().parseFromString(text, 'text/html');
+    return normalizeExtractedText(doc.body ? (doc.body.innerText || doc.body.textContent || '') : text);
+  }
+  return normalizeExtractedText(text);
+}
+
+
+/* ---------- The inline form ---------- */
+function openRoleFromJDForm() {
+  const id = nextId('R', '#roles-body');
+  const pillGroup = (name, options, current, required) => {
+    const opts = options.map(o => typeof o === 'object' ? o : { value: o, label: o || '—' });
+    return `<div class="pill-group" data-name="${name}"${required ? ' data-required="1"' : ''}>
+      ${opts.map(o => {
+        const dataAttr = name === 'priority' && o.value ? ` data-priority="${escHtml(o.value)}"` : '';
+        return `<button type="button" class="pill${o.value === current ? ' active' : ''}"${dataAttr} data-value="${escHtml(o.value)}">${escHtml(o.label)}</button>`;
+      }).join('')}
+    </div>`;
+  };
+  const employmentTypeOptions = EMPLOYMENT_TYPES.map(t => ({value: t, label: t}));
+  const statusOptions = ROLE_STATUSES.map(s => ({value: s, label: s}));
+  const priorityOptions = [{value:'',label:'—'}, ...PRIORITIES.map(p => ({value:p, label:p}))];
+
+  const formTr = document.createElement('tr');
+  formTr.className = 'form-row';
+  formTr.dataset.id = id;
+  formTr.innerHTML = `<td colspan="6">
+    <form class="role-jd-form">
+      <h3 style="font-family:'Fraunces',serif; font-weight:400; font-size:24px; letter-spacing:-0.01em; margin-bottom: 4px;">New role from JD</h3>
+      <p style="font-family:'Inter Tight',sans-serif; font-size:13px; color:var(--ink-faint); margin-bottom: 20px;">
+        Upload the JD as Markdown, HTML, or plain text — or paste it below. Fields auto-fill on upload; review, adjust, then Create.
+      </p>
+
+      <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap: 16px 24px;">
+        <label class="full" style="grid-column: 1 / -1;">
+          Upload JD (Markdown / HTML / plain text)
+          <input type="file" name="jdfile" accept=".md,.markdown,.html,.htm,.txt,text/markdown,text/html,text/plain">
+          <div class="jd-parse-status" style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--ink-faint); margin-top: 6px; min-height: 14px;"></div>
+        </label>
+        <label class="full" style="grid-column: 1 / -1;">
+          Or paste JD text
+          <textarea name="jdtext" rows="6" placeholder="Paste JD as Markdown, HTML, or plain text — title on line 1, sections like '## About Example Co', '## Why this role', '## What we offer'…"></textarea>
+        </label>
+        <div class="full" style="grid-column: 1 / -1; margin-bottom: 8px;">
+          <button type="button" class="btn-secondary parse-jd-btn">Parse JD → auto-fill fields</button>
+        </div>
+
+        <label class="full" style="grid-column: 1 / -1; padding-top: 12px; border-top: 1px solid var(--rule);">Title *
+          <input name="title" required>
+        </label>
+        <label class="full" style="grid-column: 1 / -1;">URL slug (SEO — appears in the public URL as /roles/{slug}/)
+          <input name="slug" placeholder="auto-derived from title if blank">
+        </label>
+        <label class="full" style="grid-column: 1 / -1;">TL;DR (one-line summary)
+          <textarea name="tldr" rows="2" placeholder="One-line summary shown on the careers card and role detail page."></textarea>
+        </label>
+        <label class="full" style="grid-column: 1 / -1;">Type *
+          ${pillGroup('employmentType', employmentTypeOptions, 'Full-time', true)}
+        </label>
+        <label class="full" style="grid-column: 1 / -1;">Status *
+          ${pillGroup('status', statusOptions, 'Open', true)}
+        </label>
+        <label>Department<input name="department"></label>
+        <label>Hiring manager *<input name="hiringManager" required></label>
+        <label>Location<input name="location"></label>
+        <label>Salary<input name="salary" placeholder="e.g. £70,000 or $80,000 – $130,000"></label>
+        <label>Target start<input type="date" name="targetStart"></label>
+        <label class="full" style="grid-column: 1 / -1;">Job description (markdown, will render on the role page)
+          <textarea name="notes" rows="16" placeholder="## Why this role..." style="font-family:'JetBrains Mono',monospace; font-size:13px; line-height: 1.5;"></textarea>
+        </label>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn-primary">Create role + publish page</button>
+        <button type="button" class="btn-secondary cancel-btn">Cancel</button>
+      </div>
+    </form>
+  </td>`;
+
+  // Wire pill toggling
+  formTr.querySelectorAll('.pill-group').forEach(group => {
+    group.addEventListener('click', (e) => {
+      const pill = e.target.closest('.pill');
+      if (!pill) return;
+      group.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+    });
+  });
+
+  // Handle file upload — extract text + parse
+  const fileInput = formTr.querySelector('input[name=jdfile]');
+  const statusEl = formTr.querySelector('.jd-parse-status');
+  fileInput.addEventListener('change', async () => {
+    const file = fileInput.files[0];
+    if (!file) return;
+    statusEl.textContent = 'Reading ' + file.name + '…';
+    try {
+      const text = await readJDFile(file);
+      formTr.querySelector('textarea[name=jdtext]').value = text;
+      statusEl.textContent = 'Extracted ' + text.length + ' chars. Click "Parse" to auto-fill.';
+      // Auto-parse
+      populateFieldsFromJD(formTr, text);
+      statusEl.textContent = 'Auto-filled from ' + file.name + '. Review the fields below.';
+    } catch (err) {
+      console.error(err);
+      statusEl.textContent = 'Failed to read file: ' + (err.message || err);
+    }
+  });
+
+  // Parse button
+  formTr.querySelector('.parse-jd-btn').addEventListener('click', () => {
+    const text = formTr.querySelector('textarea[name=jdtext]').value;
+    if (!text.trim()) {
+      statusEl.textContent = 'Nothing to parse — upload a file or paste text first.';
+      return;
+    }
+    populateFieldsFromJD(formTr, text);
+    statusEl.textContent = 'Parsed. Review the fields below.';
+  });
+
+  $('#roles-body').prepend(formTr);
+  setTimeout(() => fileInput.focus(), 0);
+}
+
+function populateFieldsFromJD(formTr, text) {
+  const parsed = parseJD(text);
+  const fields = ['title','slug','tldr','department','hiringManager','location','salary','notes'];
+  for (const f of fields) {
+    const el = formTr.querySelector(`[name=${f}]`);
+    if (el && parsed[f] != null) el.value = parsed[f];
+  }
+  // Pills
+  for (const [name, val] of Object.entries({employmentType: parsed.employmentType, status: parsed.status, priority: parsed.priority})) {
+    const group = formTr.querySelector(`.pill-group[data-name=${name}]`);
+    if (!group || !val) continue;
+    group.querySelectorAll('.pill').forEach(p => {
+      p.classList.toggle('active', p.dataset.value === val);
+    });
+  }
+}
+
+/* ---------- Submit: create role row + publish role page ---------- */
+document.addEventListener('submit', async (e) => {
+  const form = e.target.closest('form.role-jd-form');
+  if (!form) return;
+  e.preventDefault();
+
+  const data = {};
+  form.querySelectorAll('input[name], textarea[name]').forEach(el => {
+    if (el.name === 'jdfile' || el.name === 'jdtext') return;
+    data[el.name] = el.value;
+  });
+  form.querySelectorAll('.pill-group').forEach(g => {
+    data[g.dataset.name] = g.querySelector('.pill.active')?.dataset.value || '';
+  });
+
+  const missing = [];
+  form.querySelectorAll('input[required]').forEach(el => {
+    if (!el.value.trim()) missing.push(el.name);
+  });
+  form.querySelectorAll('.pill-group[data-required]').forEach(g => {
+    if (!g.querySelector('.pill.active')?.dataset.value) missing.push(g.dataset.name);
+  });
+  if (missing.length) {
+    alert('Please fill in: ' + missing.join(', '));
+    return;
+  }
+
+  const formTr = form.closest('tr.form-row');
+  data.id = formTr.dataset.id || nextId('R', '#roles-body');
+
+  const submitBtn = form.querySelector('button[type=submit]');
+  const originalLabel = submitBtn.textContent;
+  submitBtn.disabled = true;
+
+  try {
+    // 1) POST the role row
+    submitBtn.textContent = 'Saving role…';
+    const rowHtml = renderRoleRow(data);
+    await httpPOST($('#roles-body'), rowHtml);
+
+    // 2) Role page is served by the parameterised route /roles/:role_name/ — no per-role file needed.
+    data.slug = (data.slug || slugify(data.title)).trim();
+    if (!data.slug) throw new Error('Slug is required — please fill in title or slug.');
+
+    formTr.remove();
+    repopulateRoleFilters();
+    alert(`Role ${data.id} created. Public page: /roles/${data.slug}/`);
+  } catch (err) {
+    console.error(err);
+    alert('Create failed: ' + (err.message || err));
+    submitBtn.disabled = false;
+    submitBtn.textContent = originalLabel;
+  }
+});
+
+const FORM_CONFIGS = {
+  'candidate-form': { bodySel: '#candidates-body', renderer: renderCandidateRow, idPrefix: 'C', after: () => { refreshLastActivity(); applyFilters(); applySort(); } },
+  'role-form':      { bodySel: '#roles-body',      renderer: renderRoleRow,      idPrefix: 'R', after: () => { repopulateRoleFilters(); } },
+  'interview-form': { bodySel: '#interviews-body', renderer: renderInterviewRow, idPrefix: 'I', after: () => { refreshLastActivity(); } },
+};
+
+document.addEventListener('submit', async (e) => {
+  const form = e.target;
+  if (form.tagName !== 'FORM') return;
+  const formClass = [...form.classList].find(c => FORM_CONFIGS[c]);
+  if (!formClass) return;
+  const config = FORM_CONFIGS[formClass];
+  e.preventDefault();
+
+  const data = {};
+  form.querySelectorAll('input[name], textarea[name]').forEach(el => data[el.name] = el.value);
+  form.querySelectorAll('.pill-group').forEach(g => {
+    data[g.dataset.name] = g.querySelector('.pill.active')?.dataset.value || '';
+  });
+
+  const missing = [];
+  form.querySelectorAll('.pill-group[data-required]').forEach(g => {
+    if (!g.querySelector('.pill.active')?.dataset.value) missing.push(g.dataset.name);
+  });
+  if (missing.length) {
+    alert('Please select: ' + missing.join(', '));
+    return;
+  }
+
+  const formTr = form.closest('tr.form-row');
+  data.id = formTr.dataset.id || nextId(config.idPrefix, config.bodySel);
+  const html = config.renderer(data);
+
+  try {
+    await httpPOST($(config.bodySel), html);
+    formTr.remove();
+    config.after();
+  } catch (err) {
+    console.error(err);
+    alert('Create failed: ' + (err.message || err));
+  }
+});
+
+/* ---------- Click handlers ---------- */
+document.addEventListener('click', async (e) => {
+  // Copy public role URL to clipboard
+  const copyBtn = e.target.closest('.copy-public-url-btn');
+  if (copyBtn) {
+    const url = copyBtn.dataset.copyUrl;
+    try {
+      await navigator.clipboard.writeText(url);
+      const orig = copyBtn.textContent;
+      copyBtn.textContent = '✓ Copied';
+      copyBtn.classList.add('copied');
+      setTimeout(() => { copyBtn.textContent = orig; copyBtn.classList.remove('copied'); }, 1400);
+    } catch (err) {
+      alert('Copy failed — the URL is: ' + url);
+    }
+    return;
+  }
+
+  // Inline field edit (highest priority on .editable cells inside detail rows)
+  const editable = e.target.closest('.editable');
+  if (editable && editable.dataset.edit && editable.dataset.id && !editable.querySelector('input, textarea, .pill-row[data-edit-mode]')) {
+    e.stopPropagation();
+    openFieldEdit(editable);
+    return;
+  }
+  // cancel form
+  if (e.target.matches('.cancel-btn')) {
+    e.target.closest('tr.form-row')?.remove();
+    return;
+  }
+  // delete button → inline confirm
+  if (e.target.matches('[data-delete]')) {
+    showInlineConfirm(e.target.dataset.delete);
+    return;
+  }
+  // confirm delete (candidate)
+  if (e.target.matches('[data-confirm]')) {
+    const id = e.target.dataset.confirm;
+    const tr = $('#' + id);
+    const confirmTr = e.target.closest('tr.confirm-row');
+    try {
+      await httpDELETE(tr);
+      confirmTr?.remove();
+      refreshLastActivity();
+      applyFilters();
+    } catch (err) {
+      console.error(err);
+      alert('Delete failed: ' + (err.message || err));
+    }
+    return;
+  }
+  // delete-role button (with attached-candidates warning)
+  if (e.target.matches('[data-delete-role]')) {
+    showRoleDeleteConfirm(e.target.dataset.deleteRole);
+    return;
+  }
+  // confirm delete (role)
+  if (e.target.matches('[data-confirm-role]')) {
+    const id = e.target.dataset.confirmRole;
+    const tr = $('#' + id);
+    const confirmTr = e.target.closest('tr.confirm-row');
+    try {
+      await httpDELETE(tr);
+      confirmTr?.remove();
+      repopulateRoleFilters();
+    } catch (err) {
+      console.error(err);
+      alert('Delete failed: ' + (err.message || err));
+    }
+    return;
+  }
+  // delete-interview button
+  if (e.target.matches('[data-delete-interview]')) {
+    showInterviewDeleteConfirm(e.target.dataset.deleteInterview);
+    return;
+  }
+
+  // Toggle the "ball in whose court" badge — writes an override note that decorateLastComm reads next refresh.
+  if (e.target.matches('.action-badge')) {
+    e.stopPropagation();
+    const cid = e.target.dataset.toggleAction;
+    const badge = e.target;
+    const current = badge.dataset.currentState;  // 'handled' or 'needed'
+    const nextSummary = current === 'handled' ? 'Marked needing email' : 'Marked as handled';
+    badge.classList.add('busy');
+    (async () => {
+      try {
+        const act = {
+          id: nextId('L', '#activity-body'),
+          date: new Date().toISOString().slice(0, 10),
+          candidateId: cid,
+          type: 'Note',
+          summary: nextSummary,
+        };
+        await httpPOST($('#activity-body'), renderActivityRow(act));
+        refreshActivityList(cid);
+        refreshLastActivity();
+        applyFilters();
+        applySort();
+      } catch (err) {
+        console.error(err);
+        badge.classList.remove('busy');
+        alert('Toggle failed: ' + (err.message || err));
+      }
+    })();
+    return;
+  }
+
+  if (e.target.matches('[data-download-cvs]')) {
+    e.preventDefault();
+    const roleId = e.target.dataset.downloadCvs;
+    const container = e.target.closest('.actions');
+    const stageSel = container?.querySelector('.download-cvs-stage');
+    const statusEl = container?.querySelector('.download-cvs-status');
+    const btn = e.target;
+    btn.disabled = true;
+    const orig = btn.textContent;
+    btn.textContent = 'Preparing\u2026';
+    downloadRoleCVs(roleId, stageSel?.value || '', statusEl)
+      .catch(err => { console.error(err); statusEl.textContent = 'Failed: ' + (err.message || err); })
+      .finally(() => { btn.disabled = false; btn.textContent = orig; });
+    return;
+  }
+
+  // Send email: open composer
+  if (e.target.matches('[data-send-email]')) {
+    e.preventDefault();
+    openEmailComposer(e.target.dataset.sendEmail);
+    return;
+  }
+  // Activity log: add new entry
+  if (e.target.matches('[data-add-activity]')) {
+    const candidateId = e.target.dataset.addActivity;
+    const list = $(`.activity-list[data-candidate-id="${candidateId}"]`);
+    if (!list) return;
+    // If a form is already open, focus it instead of opening a new one
+    if (list.querySelector('form.activity-form:not([data-id])')) {
+      list.querySelector('form.activity-form input[name="summary"]')?.focus();
+      return;
+    }
+    const formHtml = renderActivityForm(candidateId);
+    list.insertAdjacentHTML('afterbegin', formHtml);
+    list.querySelector('form.activity-form input[name="summary"]')?.focus();
+    return;
+  }
+  // Activity log: click card to edit (unless click was on delete button or already in form)
+  const activityCard = e.target.closest('.activity-card');
+  if (activityCard && !e.target.closest('.activity-delete-btn, .activity-form, .activity-confirm')) {
+    const id = activityCard.dataset.activityId;
+    const list = activityCard.closest('.activity-list');
+    const candidateId = list.dataset.candidateId;
+    const formHtml = renderActivityForm(candidateId, id);
+    activityCard.outerHTML = formHtml;
+    list.querySelector(`form[data-id="${id}"] input[name="summary"]`)?.focus();
+    return;
+  }
+  // Activity log: delete entry → inline confirm replaces card
+  if (e.target.matches('[data-delete-activity]')) {
+    const id = e.target.dataset.deleteActivity;
+    const card = e.target.closest('.activity-card');
+    if (!card) return;
+    card.outerHTML = `<div class="activity-confirm">
+      <span>Delete entry ${escHtml(id)}?</span>
+      <button class="btn-danger" data-confirm-activity="${escHtml(id)}">Yes, delete</button>
+      <button class="btn-secondary cancel-confirm-activity" data-activity-id="${escHtml(id)}">Cancel</button>
+    </div>`;
+    return;
+  }
+  // Activity confirm yes
+  if (e.target.matches('[data-confirm-activity]')) {
+    const id = e.target.dataset.confirmActivity;
+    const tr = $('#' + id);
+    const confirm = e.target.closest('.activity-confirm');
+    const list = confirm?.closest('.activity-list');
+    const candidateId = list?.dataset.candidateId;
+    try {
+      if (tr) await httpDELETE(tr);
+      if (candidateId) refreshActivityList(candidateId);
+      refreshLastActivity();
+    } catch (err) {
+      // If the server says "no elements matched", the entry is already gone — treat as success
+      // (browser was out of sync with server). Otherwise surface the error.
+      if (/no elements matched/i.test(err.message || '')) {
+        console.warn('activity already gone on server, removing local:', id);
+        if (tr) tr.remove();
+        if (candidateId) refreshActivityList(candidateId);
+        refreshLastActivity();
+      } else {
+        console.error(err);
+        alert('Delete failed: ' + (err.message || err));
+      }
+    }
+    return;
+  }
+  // Activity confirm cancel
+  if (e.target.matches('.cancel-confirm-activity')) {
+    const id = e.target.dataset.activityId;
+    const confirm = e.target.closest('.activity-confirm');
+    const list = confirm?.closest('.activity-list');
+    if (list) refreshActivityList(list.dataset.candidateId);
+    return;
+  }
+  // Activity form: cancel
+  if (e.target.matches('.activity-cancel-btn')) {
+    const form = e.target.closest('form.activity-form');
+    const list = form?.closest('.activity-list');
+    if (list) refreshActivityList(list.dataset.candidateId);
+    return;
+  }
+  // confirm delete (interview)
+  if (e.target.matches('[data-confirm-interview]')) {
+    const id = e.target.dataset.confirmInterview;
+    const tr = $('#' + id);
+    const confirmTr = e.target.closest('tr.confirm-row');
+    try {
+      await httpDELETE(tr);
+      confirmTr?.remove();
+      refreshLastActivity();
+    } catch (err) {
+      console.error(err);
+      alert('Delete failed: ' + (err.message || err));
+    }
+    return;
+  }
+  // cancel confirm
+  if (e.target.matches('.cancel-confirm')) {
+    e.target.closest('tr.confirm-row')?.remove();
+    return;
+  }
+  // expand row (last — only if click wasn't on an interactive element)
+  if (e.target.closest('button, input, select, textarea, .detail-row, .form-row, .confirm-row, .role-link, .editable, .kanban-card')) return;
+  // Allow plain anchors that aren't role-link or kanban-card to bubble (e.g. mailto: in detail panel)
+  if (e.target.tagName === 'A' && !e.target.closest('#candidates-body > tr[itemtype], #roles-body > tr[itemtype]')) return;
+  const candTr = e.target.closest('#candidates-body > tr[itemtype]');
+  if (candTr) { toggleExpand(candTr); return; }
+  const roleTr = e.target.closest('#roles-body > tr[itemtype]');
+  if (roleTr) { toggleExpandRole(roleTr); return; }
+  const interviewTr = e.target.closest('#interviews-body > tr[itemtype]');
+  if (interviewTr) { toggleExpandInterview(interviewTr); return; }
+});
+
+function showInlineConfirm(id) {
+  const tr = $('#' + id);
+  const detail = tr.nextElementSibling;
+  if (detail?.classList.contains('detail-row')) detail.remove();
+  const c = document.createElement('tr');
+  c.className = 'confirm-row';
+  c.innerHTML = `<td colspan="8">
+    <span>Delete ${escHtml(id)}? This cannot be undone.</span>
+    <button class="btn-danger" data-confirm="${escHtml(id)}">Yes, delete</button>
+    <button class="btn-secondary cancel-confirm">Cancel</button>
+  </td>`;
+  tr.after(c);
+}
+
+/* ---------- Add candidate ---------- */
+$('#addCandidateBtn').addEventListener('click', () => {
+  if (location.hash && location.hash !== '#candidates') location.hash = '#candidates';
+  openCandidateForm(null);
+});
+
+/* ---------- Add role ---------- */
+$('#addRoleBtn').addEventListener('click', () => {
+  if (location.hash !== '#roles') location.hash = '#roles';
+  openRoleForm();
+});
+
+$('#addRoleFromJDBtn').addEventListener('click', () => {
+  openRoleFromJDForm();
+});
+
+/* ---------- Add interview ---------- */
+$('#addInterviewBtn').addEventListener('click', () => {
+  if (location.hash !== '#interviews') location.hash = '#interviews';
+  openInterviewForm();
+});
+
+/* ---------- Search/sort wiring (filter pills wire themselves in populateFilters) ---------- */
+$('#search').addEventListener('input', e => { state.search = e.target.value; applyFilters(); });
+
+$$('thead th[data-sort]').forEach(th => {
+  th.addEventListener('click', () => {
+    const k = th.dataset.sort;
+    if (state.sortKey === k) state.sortDir = state.sortDir === 'asc' ? 'desc' : 'asc';
+    else { state.sortKey = k; state.sortDir = 'asc'; }
+    applySort();
+  });
+});
+
+/* ---------- Derived lastActivity ---------- */
+function refreshLastActivity() {
+  // Index interview + activity dates by candidateId in one pass so this stays O(n) not O(n²).
+  const datesByCandidate = new Map();
+  const record = (candId, date) => {
+    if (!candId || !date) return;
+    const cur = datesByCandidate.get(candId);
+    if (!cur || date > cur) datesByCandidate.set(candId, date);
+  };
+  $$('#interviews-body tr[itemtype]').forEach(tr => record(readField(tr, 'candidateId'), readField(tr, 'date')));
+  $$('#activity-body tr[itemtype]').forEach(tr => record(readField(tr, 'candidateId'), readField(tr, 'date')));
+
+  $$('#candidates-body > tr[itemtype]').forEach(tr => {
+    // If stage moved past Applied but we didn't log the change (historical rows), fall back to firstContact.
+    const max = datesByCandidate.get(tr.id) || readField(tr, 'firstContact') || '';
+    const lastEl = tr.querySelector('.last-activity');
+    if (lastEl) {
+      lastEl.setAttribute('datetime', max);
+      lastEl.textContent = max ? fmtDate(max) : '—';
+    }
+  });
+}
+
+/* ---------- Keyboard shortcut ---------- */
+document.addEventListener('keydown', e => {
+  const search = $('#search');
+  const ae = document.activeElement;
+  if (e.key === '/' && ae !== search && ae?.tagName !== 'INPUT' && ae?.tagName !== 'TEXTAREA') {
+    e.preventDefault();
+    search.focus();
+  }
+  if (e.key === 'Escape' && ae === search) {
+    search.value = '';
+    state.search = '';
+    applyFilters();
+    search.blur();
+  }
+});
+
+/* ---------- Init ---------- */
+populateFilters();
+
+// Backfill applied-date cell on any hardcoded candidate rows (they were rendered pre-Applied-column).
+$$('#candidates-body > tr[itemtype]').forEach(tr => {
+  const last = tr.querySelector('.last-activity, .applied-date');
+  if (!last) return;
+  const fc = readField(tr, 'firstContact');
+  if (!last.classList.contains('applied-date')) {
+    last.classList.remove('last-activity');
+    last.classList.add('applied-date');
+  }
+  last.setAttribute('datetime', fc || '');
+  last.textContent = fc ? fmtDate(fc) : '\u2014';
+});
+refreshLastActivity();
+applyFilters();
+applySort();
+</script>
+
+
+
+</body></html>

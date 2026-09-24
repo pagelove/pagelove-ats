@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ATS · Authorization</title>
+<style>
+  body { font-family: system-ui, sans-serif; padding: 32px; background: #faf8f4; color: #111; max-width: 1100px; margin: 0 auto; }
+  h1, h2 { font-family: Georgia, serif; font-weight: 400; }
+  h1 { margin-bottom: 8px; }
+  h2 { margin-top: 40px; margin-bottom: 12px; font-size: 20px; }
+  .intro { color: #3d3d3d; margin-bottom: 24px; line-height: 1.5; }
+  .warn { background: #fff3cd; padding: 14px 16px; border-left: 4px solid #c23616; margin: 20px 0; font-size: 13px; line-height: 1.5; }
+  table { border-collapse: collapse; width: 100%; margin-bottom: 16px; font-size: 13px; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid #e5e3de; vertical-align: top; }
+  th { background: #f3f0e9; font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: #555; }
+  ul { margin: 0; padding-left: 18px; }
+  code { font-family: 'SF Mono', Menlo, monospace; font-size: 12px; background: #f3f0e9; padding: 1px 4px; border-radius: 2px; }
+  .constraint { margin-bottom: 12px; padding: 14px 16px; background: #f3f0e9; border-radius: 4px; font-size: 12px; }
+  .constraint code { display: block; margin: 3px 0; background: transparent; padding: 0; }
+</style>
+</head>
+<body>
+
+<h1>ATS · Authorization &amp; Shape Constraints</h1>
+<p class="intro">
+  URL layout: <code>/</code> (<code>/index.html</code>) is the <strong>public</strong> home
+  (open roles + apply links); <code>/apply.html</code> is the public application form;
+  <code>/roles.html</code> is the public composed roles feed; the <strong>private</strong> hiring
+  dashboard lives at <code>/admin/</code> (<code>/admin/index.html</code>).
+  <br><br>
+  <code>/admin/index.html</code> is fully private: no anonymous GET rule exists, so with the host in
+  <code>default-get-authz-mode: deny</code> every anonymous read (whole-doc and selector-scoped)
+  is refused. Only members of the <code>admins</code> group (see Groups below) can read it. Writes are
+  gated to the <code>admins</code> group, except the single public <code>POST #candidates-body</code>
+  window that lets <code>apply.html</code> submit applications.
+</p>
+
+<div class="warn">
+  <strong>Why roles live on a separate page:</strong> this platform treats <em>any</em> public
+  selector-scoped GET allow rule as opening <em>every</em> selector of that resource for anonymous
+  reads (explicit <code>deny</code> rules do not override it). So <code>/admin/index.html</code> cannot
+  hold both private candidate data and a public roles window. Instead, <code>/roles.html</code> is a
+  fully-public page that <code>&lt;p:include&gt;</code>s <code>#roles-body</code> from the private
+  <code>/admin/index.html</code> via elevated server-side composition. The home page (<code>/</code>) and
+  <code>apply.html</code> read roles from <code>/roles.html</code>; candidate/interview/activity data
+  is never exposed.
+</div>
+
+<h2>Groups</h2>
+<p class="intro">
+  The <code>admins</code> group gates the private admin screens. Membership is matched against the
+  principal's <strong>verified OIDC email</strong> (an unverified/absent email never matches).
+  Members: admin2@example.com, admin1@example.com, admin3@example.com. Add or remove a
+  <code>member</code> below to change who can reach <code>/admin/</code>.
+</p>
+<div itemscope itemtype="https://pagelove.org/Group">
+  <meta itemprop="name" content="admins">
+  <meta itemprop="member" content="admin2@example.com">
+  <meta itemprop="member" content="admin1@example.com">
+  <meta itemprop="member" content="admin3@example.com">
+  <meta itemprop="member" content="admin2@example.com">
+  <meta itemprop="member" content="admin1@example.com">
+  <meta itemprop="member" content="admin3@example.com">
+</div>
+
+<!-- Parallel GroupMembership entries in case the platform picks up this schema
+     rather than the Group-with-nested-member shape above. Both should resolve
+     to the same admins group. -->
+<table>
+  <thead><tr><th>Actor</th><th>Groups</th></tr></thead>
+  <tbody>
+    <tr itemscope itemtype="https://pagelove.org/GroupMembership">
+      <td itemprop="actor">admin2@example.com</td>
+      <td><ul><li itemprop="group">admins</li></ul></td>
+    </tr>
+    <tr itemscope itemtype="https://pagelove.org/GroupMembership">
+      <td itemprop="actor">admin1@example.com</td>
+      <td><ul><li itemprop="group">admins</li></ul></td>
+    </tr>
+    <tr itemscope itemtype="https://pagelove.org/GroupMembership">
+      <td itemprop="actor">admin3@example.com</td>
+      <td><ul><li itemprop="group">admins</li></ul></td>
+    </tr>
+    <tr itemscope itemtype="https://pagelove.org/GroupMembership">
+      <td itemprop="actor">admin2@example.com</td>
+      <td><ul><li itemprop="group">admins</li></ul></td>
+    </tr>
+    <tr itemscope itemtype="https://pagelove.org/GroupMembership">
+      <td itemprop="actor">admin1@example.com</td>
+      <td><ul><li itemprop="group">admins</li></ul></td>
+    </tr>
+    <tr itemscope itemtype="https://pagelove.org/GroupMembership">
+      <td itemprop="actor">admin3@example.com</td>
+      <td><ul><li itemprop="group">admins</li></ul></td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Authorization Rules</h2>
+<table>
+  <thead>
+    <tr><th>Actor</th><th>Resource</th><th>Method</th><th>Selector</th><th>Action</th></tr>
+  </thead>
+  <tbody>
+
+    <!-- PRIVATE admin dashboard at /admin/index.html (served at /admin/).
+         Read: any authenticated staff member gets the full doc. Covers both the file
+         path and the /admin/ directory-index path so it loads however it's addressed.
+
+         NOTE: rules duplicated per email as a fallback because the `admins` group
+         defined below isn't being resolved on this host (whoami shows roles=users only).
+         Once the platform recognises the Group / GroupMembership schema, the per-email
+         rules become redundant and can be deleted, leaving just the `admins` ones. -->
+    <tr itemscope itemtype="https://pagelove.org/AuthorizationRule">
+      <td itemprop="actor">admins</td>
+      <td itemprop="resource">/admin/index.html</td>
+      <td><ul><li itemprop="method">GET</li><li itemprop="method">OPTIONS</li></ul></td>
+      <td itemprop="selector"></td>
+      <td itemprop="action">allow</td>
+    </tr>
+    <tr itemscope itemtype="https://pagelove.org/AuthorizationRule">
+      <td itemprop="actor">admins</td>
+      <td itemprop="resource">/admin/</td>
+      <td><ul><li itemprop="method">GET</li><li itemprop="method">OPTIONS</li></ul></td>
+      <td itemprop="selector"></td>
+      <td itemprop="action">allow</td>
+    </tr>
+    <tr itemscope itemtype="https://pagelove.org/AuthorizationRule">
+      <td itemprop="actor">admins</td>
+      <td itemprop="resource">/admin/index.html</td>
+      <td><ul><li itemprop="method">POST</li><li itemprop="method">PUT</li><li itemprop="method">DELETE</li></ul></td>
+      <td itemprop="selector">tbody, tr[itemtype]</td>
+      <td itemprop="action">allow</td>
+    </tr>
+
+    <!-- ===== Direct-email fallback (delete once `admins` group resolves) ===== -->
+    <tr itemscope itemtype="https://pagelove.org/AuthorizationRule">
+      <td itemprop="actor">admin1@example.com</td>
+      <td itemprop="resource">/admin/index.html</td>
+      <td><ul><li itemprop="method">GET</li><li itemprop="method">OPTIONS</li><li itemprop="method">POST</li><li itemprop="method">PUT</li><li itemprop="method">DELETE</li></ul></td>
+      <td itemprop="selector"></td>
+      <td itemprop="action">allow</td>
+    </tr>
+    <tr itemscope itemtype="https://pagelove.org/AuthorizationRule">
+      <td itemprop="actor">admin1@example.com</td>
+      <td itemprop="resource">/admin/</td>
+      <td><ul><li itemprop="method">GET</li><li itemprop="method">OPTIONS</li></ul></td>
+      <td itemprop="selector"></td>
+      <td itemprop="action">allow</td>
+    </tr>
+    <tr itemscope itemtype="https://pagelove.org/AuthorizationRule">
+      <td itemprop="actor">admin2@example.com</td>
+      <td itemprop="resource">/admin/index.html</td>
+      <td><ul><li itemprop="method">GET</li><li itemprop="method">OPTIONS</li><li itemprop="method">POST</li><li itemprop="method">PUT</li><li itemprop="method">DELETE</li></ul></td>
+      <td itemprop="selector"></td>
+      <td itemprop="action">allow</td>
+    </tr>
+    <tr itemscope itemtype="https://pagelove.org/AuthorizationRule">
+      <td itemprop="actor">admin2@example.com</td>
+      <td itemprop="resource">/admin/</td>
+      <td><ul><li itemprop="method">GET</li><li itemprop="method">OPTIONS</li></ul></td>
+      <td itemprop="selector"></td>
+      <td itemprop="action">allow</td>
+    </tr>
+    <tr itemscope itemtype="https://pagelove.org/AuthorizationRule">
+      <td itemprop="actor">admin3@example.com</td>
+      <td itemprop="resource">/admin/index.html</td>
+      <td><ul><li itemprop="method">GET</li><li itemprop="method">OPTIONS</li><li itemprop="method">POST</li><li itemprop="method">PUT</li><li itemprop="method">DELETE</li></ul></td>
+      <td itemprop="selector"></td>
+      <td itemprop="action">allow</td>
+    </tr>
+    <tr itemscope itemtype="https://pagelove.org/AuthorizationRule">
+      <td itemprop="actor">admin3@example.com</td>
+      <td itemprop="resource">/admin/</td>
+      <td><ul><li itemprop="method">GET</li><li itemprop="method">OPTIONS</li></ul></td>
+      <td itemprop="selector"></td>
+      <td itemprop="action">allow</td>
+    </tr>
+
+    <!-- Public pages -->
+    <!-- Home page (open roles + apply links). Fully public. Reads roles from /roles.html. -->
+    <tr itemscope itemtype="https://pagelove.org/AuthorizationRule">
+      <td itemprop="actor">*</td>
+      <td itemprop="resource">/index.html</td>
+      <td><ul><li itemprop="method">GET</li><li itemprop="method">OPTIONS</li></ul></td>
+      <td itemprop="selector"></td>
+      <td itemprop="action">allow</td>
+    </tr>
+    <tr itemscope itemtype="https://pagelove.org/AuthorizationRule">
+      <td itemprop="actor">*</td>
+      <td itemprop="resource">/apply.html</td>
+      <td><ul><li itemprop="method">GET</li><li itemprop="method">OPTIONS</li></ul></td>
+      <td itemprop="selector"></td>
+      <td itemprop="action">allow</td>
+    </tr>
+    <!-- Public role detail page (per-role JD view; reads from /roles.html) -->
+    <tr itemscope itemtype="https://pagelove.org/AuthorizationRule">
+      <td itemprop="actor">*</td>
+      <td itemprop="resource">/role.html</td>
+      <td><ul><li itemprop="method">GET</li><li itemprop="method">OPTIONS</li></ul></td>
+      <td itemprop="selector"></td>
+      <td itemprop="action">allow</td>
+    </tr>
+    <!-- Public per-role SSR pages (AI/LinkedIn/Google readable — content fully in initial HTML) -->
+    <tr itemscope itemtype="https://pagelove.org/AuthorizationRule">
+      <td itemprop="actor">*</td>
+      <td itemprop="resource">/role/*</td>
+      <td><ul><li itemprop="method">GET</li><li itemprop="method">OPTIONS</li></ul></td>
+      <td itemprop="selector"></td>
+      <td itemprop="action">allow</td>
+    </tr>
+        <!-- Job microdata files: each is a small microdata "row" for one role; served publicly for /roles/:role_name/ to include -->
+    <!-- CV uploads under /uploads/*. Applicants may PUT files while reads and management remain staff-only. -->
+    <tr itemscope itemtype="https://pagelove.org/AuthorizationRule">
+      <td itemprop="actor">*</td>
+      <td itemprop="resource">/uploads/*</td>
+      <td><ul><li itemprop="method">PUT</li></ul></td>
+      <td itemprop="selector"></td>
+      <td itemprop="action">allow</td>
+    </tr>
+    <tr itemscope itemtype="https://pagelove.org/AuthorizationRule">
+      <td itemprop="actor">admins</td>
+      <td itemprop="resource">/uploads/*</td>
+      <td><ul><li itemprop="method">GET</li><li itemprop="method">PUT</li><li itemprop="method">DELETE</li><li itemprop="method">OPTIONS</li></ul></td>
+      <td itemprop="selector"></td>
+      <td itemprop="action">allow</td>
+    </tr>
+    <tr itemscope itemtype="https://pagelove.org/AuthorizationRule">
+      <td itemprop="actor">admin1@example.com</td>
+      <td itemprop="resource">/uploads/*</td>
+      <td><ul><li itemprop="method">GET</li><li itemprop="method">PUT</li><li itemprop="method">DELETE</li><li itemprop="method">OPTIONS</li></ul></td>
+      <td itemprop="selector"></td>
+      <td itemprop="action">allow</td>
+    </tr>
+    <tr itemscope itemtype="https://pagelove.org/AuthorizationRule">
+      <td itemprop="actor">admin2@example.com</td>
+      <td itemprop="resource">/uploads/*</td>
+      <td><ul><li itemprop="method">GET</li><li itemprop="method">PUT</li><li itemprop="method">DELETE</li><li itemprop="method">OPTIONS</li></ul></td>
+      <td itemprop="selector"></td>
+      <td itemprop="action">allow</td>
+    </tr>
+    <tr itemscope itemtype="https://pagelove.org/AuthorizationRule">
+      <td itemprop="actor">admin3@example.com</td>
+      <td itemprop="resource">/uploads/*</td>
+      <td><ul><li itemprop="method">GET</li><li itemprop="method">PUT</li><li itemprop="method">DELETE</li><li itemprop="method">OPTIONS</li></ul></td>
+      <td itemprop="selector"></td>
+      <td itemprop="action">allow</td>
+    </tr>
+    <!-- ATS outbound email queue: admins PUT a Postmark-shaped JSON to /outbox/E-*.json,
+         a Trigger declared in /outbox/index.html relays server-side to Postmark. -->
+    <tr itemscope itemtype="https://pagelove.org/AuthorizationRule">
+      <td itemprop="actor">admins</td>
+      <td itemprop="resource">/outbox/*</td>
+      <td><ul><li itemprop="method">GET</li><li itemprop="method">PUT</li><li itemprop="method">DELETE</li><li itemprop="method">OPTIONS</li></ul></td>
+      <td itemprop="selector"></td>
+      <td itemprop="action">allow</td>
+    </tr>
+    <tr itemscope itemtype="https://pagelove.org/AuthorizationRule">
+      <td itemprop="actor">admin1@example.com</td>
+      <td itemprop="resource">/outbox/*</td>
+      <td><ul><li itemprop="method">GET</li><li itemprop="method">PUT</li><li itemprop="method">DELETE</li><li itemprop="method">OPTIONS</li></ul></td>
+      <td itemprop="selector"></td>
+      <td itemprop="action">allow</td>
+    </tr>
+    <!-- Parameterised-route role pages: /roles/:role_name/ resolves live from ATS microdata -->
+    <tr itemscope itemtype="https://pagelove.org/AuthorizationRule">
+      <td itemprop="actor">*</td>
+      <td itemprop="resource">/roles/*</td>
+      <td><ul><li itemprop="method">GET</li><li itemprop="method">OPTIONS</li></ul></td>
+      <td itemprop="selector"></td>
+      <td itemprop="action">allow</td>
+    </tr>
+    <!-- Admins can create/update/delete per-role files when adding a new role via the ATS. -->
+    <tr itemscope itemtype="https://pagelove.org/AuthorizationRule">
+      <td itemprop="actor">admins</td>
+      <td itemprop="resource">/role/*</td>
+      <td><ul><li itemprop="method">PUT</li><li itemprop="method">DELETE</li><li itemprop="method">OPTIONS</li></ul></td>
+      <td itemprop="selector"></td>
+      <td itemprop="action">allow</td>
+    </tr>
+    <!-- Direct-email fallbacks mirror the /admin/ pattern for the same three staff emails. -->
+    <tr itemscope itemtype="https://pagelove.org/AuthorizationRule">
+      <td itemprop="actor">admin1@example.com</td>
+      <td itemprop="resource">/role/*</td>
+      <td><ul><li itemprop="method">PUT</li><li itemprop="method">DELETE</li><li itemprop="method">OPTIONS</li></ul></td>
+      <td itemprop="selector"></td>
+      <td itemprop="action">allow</td>
+    </tr>
+    <tr itemscope itemtype="https://pagelove.org/AuthorizationRule">
+      <td itemprop="actor">admin2@example.com</td>
+      <td itemprop="resource">/role/*</td>
+      <td><ul><li itemprop="method">PUT</li><li itemprop="method">DELETE</li><li itemprop="method">OPTIONS</li></ul></td>
+      <td itemprop="selector"></td>
+      <td itemprop="action">allow</td>
+    </tr>
+    <tr itemscope itemtype="https://pagelove.org/AuthorizationRule">
+      <td itemprop="actor">admin3@example.com</td>
+      <td itemprop="resource">/role/*</td>
+      <td><ul><li itemprop="method">PUT</li><li itemprop="method">DELETE</li><li itemprop="method">OPTIONS</li></ul></td>
+      <td itemprop="selector"></td>
+      <td itemprop="action">allow</td>
+    </tr>
+    <!-- Public composed roles view. Only exposes #roles-body (included from the
+         private /admin/index.html via elevated composition). Safe to be fully public. -->
+    <tr itemscope itemtype="https://pagelove.org/AuthorizationRule">
+      <td itemprop="actor">*</td>
+      <td itemprop="resource">/roles.html</td>
+      <td><ul><li itemprop="method">GET</li><li itemprop="method">OPTIONS</li></ul></td>
+      <td itemprop="selector"></td>
+      <td itemprop="action">allow</td>
+    </tr>
+
+<!-- Public diagnostic page: renders {{ request.auth.claims.email }} etc. for the
+         current requester. Useful for matching a session to the admins group. Safe to
+         be fully public — it only reflects the requester's own identity back to them. -->
+    <tr itemscope itemtype="https://pagelove.org/AuthorizationRule">
+      <td itemprop="actor">*</td>
+      <td itemprop="resource">/whoami.html</td>
+      <td><ul><li itemprop="method">GET</li><li itemprop="method">OPTIONS</li></ul></td>
+      <td itemprop="selector"></td>
+      <td itemprop="action">allow</td>
+    </tr>
+
+    <!-- Public WRITE window on the admin doc: anonymous applicants may append a candidate
+         row (POST only, #candidates-body only). Independent of GET rules, so this works
+         even though anonymous GET of /admin/index.html is fully denied. Shape-constrained below. -->
+    <tr itemscope itemtype="https://pagelove.org/AuthorizationRule">
+      <td itemprop="actor">*</td>
+      <td itemprop="resource">/admin/index.html</td>
+      <td><ul><li itemprop="method">POST</li></ul></td>
+      <td itemprop="selector">tbody#candidates-body</td>
+      <td itemprop="action">allow</td>
+    </tr>
+
+  </tbody>
+</table>
+
+<h2>Shape Constraints</h2>
+
+<div class="constraint" itemscope itemtype="https://pagelove.org/ShapeConstraint">
+  <strong>Candidate row</strong>
+  <code itemprop="selector">#candidates-body tr[itemtype="https://pagelove.org/Candidate"]</code>
+  <code itemprop="constraint">:has([itemprop=id])</code>
+  <code itemprop="constraint">:has([itemprop=name])</code>
+  <code itemprop="constraint">:has([itemprop=roleId])</code>
+  <code itemprop="constraint">:has([itemprop=stage])</code>
+  <code itemprop="constraint">:has([itemprop=owner])</code>
+  <code itemprop="constraint">:has([itemprop=firstContact])</code>
+</div>
+
+<div class="constraint" itemscope itemtype="https://pagelove.org/ShapeConstraint">
+  <strong>Candidates table — CLOSED (untrusted public write path)</strong>
+  <p style="margin:4px 0 8px; font-size:12px; color:#3d3d3d;">
+    Fires when the anonymous <code>POST #candidates-body</code> target is hit. Being closed
+    (it declares <code>permit</code>s), it rejects any element or attribute not listed below with
+    <code>422</code> — so no <code>&lt;script&gt;</code>, <code>&lt;img onerror&gt;</code>,
+    <code>style</code>/<code>on*</code> handlers, or other markup can be stored via the public form.
+    Permits are the union of every element/attribute used by real candidate rows (stored data,
+    <code>apply.html</code>, and the admin renderer). Each is tied to a specific element so a
+    bare-attribute permit can't let a foreign tag slip through.
+  </p>
+  <code itemprop="selector">#candidates-body</code>
+  <code itemprop="permit">tr[id][itemscope][itemtype]</code>
+  <code itemprop="permit">td</code>
+  <code itemprop="permit">td[class]</code>
+  <code itemprop="permit">td[hidden]</code>
+  <code itemprop="permit">td[itemprop]</code>
+  <code itemprop="permit">div[class]</code>
+  <code itemprop="permit">div[itemprop]</code>
+  <code itemprop="permit">span[class]</code>
+  <code itemprop="permit">span[itemprop]</code>
+  <code itemprop="permit">span[data-stage]</code>
+  <code itemprop="permit">span[data-priority]</code>
+  <code itemprop="permit">a[class]</code>
+  <code itemprop="permit">a[href]</code>
+  <code itemprop="permit">a[itemprop]</code>
+  <code itemprop="permit">time[class]</code>
+  <code itemprop="permit">time[datetime]</code>
+  <code itemprop="permit">time[itemprop]</code>
+</div>
+
+<div class="constraint" itemscope itemtype="https://pagelove.org/ShapeConstraint">
+  <strong>Role row</strong>
+  <code itemprop="selector">#roles-body tr[itemtype="https://pagelove.org/Role"]</code>
+  <code itemprop="constraint">:has([itemprop=id])</code>
+  <code itemprop="constraint">:has([itemprop=title])</code>
+  <code itemprop="constraint">:has([itemprop=hiringManager])</code>
+  <code itemprop="constraint">:has([itemprop=employmentType])</code>
+  <code itemprop="constraint">:has([itemprop=status])</code>
+</div>
+
+<div class="constraint" itemscope itemtype="https://pagelove.org/ShapeConstraint">
+  <strong>Interview row</strong>
+  <code itemprop="selector">#interviews-body tr[itemtype="https://pagelove.org/Interview"]</code>
+  <code itemprop="constraint">:has([itemprop=id])</code>
+  <code itemprop="constraint">:has([itemprop=candidateId])</code>
+  <code itemprop="constraint">:has([itemprop=type])</code>
+  <code itemprop="constraint">:has([itemprop=date])</code>
+</div>
+
+<div class="constraint" itemscope itemtype="https://pagelove.org/ShapeConstraint">
+  <strong>Activity log row</strong>
+  <code itemprop="selector">#activity-body tr[itemtype="https://pagelove.org/ActivityLog"]</code>
+  <code itemprop="constraint">:has([itemprop=id])</code>
+  <code itemprop="constraint">:has([itemprop=candidateId])</code>
+  <code itemprop="constraint">:has([itemprop=type])</code>
+  <code itemprop="constraint">:has([itemprop=date])</code>
+  <code itemprop="constraint">:has([itemprop=summary])</code>
+</div>
+
+</body>
+</html>

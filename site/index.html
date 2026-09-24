@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Careers · Example Co</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&amp;family=Inter+Tight:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #111111;
+    --ink-soft: #3d3d3d;
+    --ink-faint: #8a8a8a;
+    --rule: #e5e3de;
+    --paper: #faf8f4;
+    --paper-alt: #f3f0e9;
+    --accent: #c23616;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter Tight', system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  body { min-height: 100vh; padding: 64px 24px 96px; }
+  main { max-width: 720px; margin: 0 auto; }
+
+  .brand {
+    font-family: 'Montserrat', system-ui, sans-serif;
+    font-weight: 300;
+    font-size: 13px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 12px;
+  }
+  h1 {
+    font-family: 'Montserrat', system-ui, sans-serif;
+    font-weight: 400;
+    font-size: 56px;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    margin-bottom: 24px;
+  }
+  h1 em { font-style: italic; color: var(--accent); }
+  .lede {
+    font-family: 'Montserrat', system-ui, sans-serif;
+    font-size: 18px;
+    color: var(--ink-soft);
+    margin-bottom: 56px;
+    max-width: 600px;
+    line-height: 1.55;
+  }
+  .lede strong { color: var(--ink); font-weight: 500; }
+
+  .roles-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .role-card {
+    display: block;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 30px 34px;
+    background: var(--paper);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+    position: relative;
+  }
+  .role-card:hover {
+    border-color: var(--ink);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px -8px rgba(0,0,0,0.08);
+  }
+  .role-card h2 {
+    font-family: 'Montserrat', system-ui, sans-serif;
+    font-weight: 400;
+    font-size: 30px;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin-bottom: 10px;
+    color: var(--ink);
+    padding-right: 40px;
+  }
+  .role-card h2 em { font-style: italic; color: var(--accent); }
+  .role-tldr {
+    font-family: 'Montserrat', system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    margin-bottom: 18px;
+    padding-right: 40px;
+  }
+  .role-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .meta-pill {
+    font-size: 11px;
+    padding: 3px 10px;
+    background: var(--paper-alt);
+    border-radius: 999px;
+    color: var(--ink-soft);
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+  .meta-pill.priority {
+    background: rgba(194,54,22,0.1);
+    color: var(--accent);
+  }
+  .role-arrow {
+    position: absolute;
+    top: 34px;
+    right: 34px;
+    font-family: 'Montserrat', system-ui, sans-serif;
+    font-size: 22px;
+    color: var(--ink-faint);
+    transition: color 0.12s, transform 0.15s;
+  }
+  .role-card:hover .role-arrow {
+    color: var(--accent);
+    transform: translateX(2px);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 64px 24px;
+    color: var(--ink-faint);
+  }
+  .empty-state p {
+    font-family: 'Montserrat', system-ui, sans-serif;
+    font-size: 18px;
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+  .empty-state a {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px dotted var(--accent);
+  }
+  .loading {
+    text-align: center;
+    padding: 48px 0;
+    color: var(--ink-faint);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+  }
+
+  footer {
+    margin-top: 96px;
+    padding-top: 24px;
+    border-top: 1px solid var(--rule);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--ink-faint);
+    letter-spacing: 0.05em;
+    text-align: center;
+    max-width: 720px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  footer a {
+    color: var(--ink-faint);
+    text-decoration: none;
+    border-bottom: 1px dotted var(--ink-faint);
+    transition: color 0.12s, border-color 0.12s;
+  }
+  footer a:hover { color: var(--ink); border-bottom-color: var(--ink); }
+  footer .sep { margin: 0 10px; opacity: 0.5; }
+
+  .how-we-hire {
+    margin-top: 96px;
+    padding-top: 48px;
+    border-top: 1px solid var(--rule);
+  }
+  .how-we-hire h2 {
+    font-family: 'Montserrat', system-ui, sans-serif;
+    font-weight: 400;
+    font-size: 36px;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin-bottom: 20px;
+    color: var(--ink);
+  }
+  .how-we-hire h2 em { font-style: italic; color: var(--accent); }
+  .how-we-hire h3 {
+    font-family: 'Montserrat', system-ui, sans-serif;
+    font-weight: 400;
+    font-size: 22px;
+    letter-spacing: -0.01em;
+    margin-top: 40px;
+    margin-bottom: 12px;
+    color: var(--ink);
+  }
+  .how-we-hire p {
+    font-family: 'Montserrat', system-ui, sans-serif;
+    font-size: 17px;
+    line-height: 1.65;
+    color: var(--ink-soft);
+    margin-bottom: 16px;
+    max-width: 620px;
+  }
+  .how-we-hire p strong { color: var(--ink); font-weight: 500; }
+  .how-we-hire ol {
+    list-style: none;
+    counter-reset: hire-step;
+    padding: 0;
+    margin: 16px 0 24px 0;
+    max-width: 620px;
+  }
+  .how-we-hire ol li {
+    counter-increment: hire-step;
+    position: relative;
+    padding-left: 44px;
+    margin-bottom: 20px;
+    font-family: 'Montserrat', system-ui, sans-serif;
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+  }
+  .how-we-hire ol li::before {
+    content: counter(hire-step);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 28px;
+    height: 28px;
+    background: var(--paper-alt);
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-soft);
+    font-weight: 500;
+  }
+  .how-we-hire ul {
+    list-style: none;
+    padding: 0;
+    margin: 12px 0 24px 0;
+    max-width: 620px;
+  }
+  .how-we-hire ul li {
+    position: relative;
+    padding-left: 22px;
+    margin-bottom: 12px;
+    font-family: 'Montserrat', system-ui, sans-serif;
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+  }
+  .how-we-hire ul li::before {
+    content: "";
+    position: absolute;
+    left: 4px;
+    top: 12px;
+    width: 6px;
+    height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+  }
+  .how-we-hire .kicker {
+    font-family: 'Montserrat', system-ui, sans-serif;
+    font-style: italic;
+    color: var(--ink);
+    margin-top: 24px;
+    margin-bottom: 32px;
+    font-size: 17px;
+  }
+
+  @media (max-width: 600px) {
+    body { padding: 40px 20px 64px; }
+    h1 { font-size: 40px; }
+    .lede { font-size: 16px; margin-bottom: 40px; }
+    .role-card { padding: 22px 24px; }
+    .role-card h2 { font-size: 22px; padding-right: 28px; }
+    .role-tldr { font-size: 15px; padding-right: 28px; }
+    .role-arrow { top: 26px; right: 24px; font-size: 20px; }
+    .how-we-hire { margin-top: 64px; padding-top: 40px; }
+    .how-we-hire h2 { font-size: 28px; }
+    .how-we-hire h3 { font-size: 20px; margin-top: 32px; }
+    .how-we-hire p, .how-we-hire ol li, .how-we-hire ul li { font-size: 16px; }
+  }
+
+  .tpl-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 12px 24px;
+    background: var(--paper);
+    border-bottom: 1px solid var(--rule);
+    font-family: 'Montserrat', system-ui, sans-serif;
+    font-size: 13px;
+    color: var(--ink-soft);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    backdrop-filter: saturate(1.4) blur(6px);
+    -webkit-backdrop-filter: saturate(1.4) blur(6px);
+    background: rgba(250,248,244,0.85);
+  }
+  .tpl-banner__label { display: inline-flex; align-items: center; gap: 8px; }
+  .tpl-banner__dot {
+    width: 6px; height: 6px; border-radius: 999px;
+    background: var(--accent);
+    box-shadow: 0 0 0 3px rgba(194,54,22,0.15);
+  }
+  .tpl-banner__label strong { color: var(--ink); font-weight: 600; }
+  .tpl-banner__label .muted { color: var(--ink-faint); }
+  .tpl-banner__actions { display: inline-flex; gap: 8px; align-items: center; }
+  .tpl-banner__btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background 0.12s, color 0.12s, border-color 0.12s;
+  }
+  .tpl-banner__btn--primary {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .tpl-banner__btn--primary:hover { background: var(--ink-soft); }
+  .tpl-banner__btn--ghost {
+    color: var(--ink-soft);
+    border: 1px solid var(--rule);
+    background: transparent;
+  }
+  .tpl-banner__btn--ghost:hover { border-color: var(--ink); color: var(--ink); }
+  @media (max-width: 640px) {
+    .tpl-banner { flex-direction: column; align-items: flex-start; gap: 10px; padding: 10px 20px; }
+    .tpl-banner__label { font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="tpl-banner">
+  <span class="tpl-banner__label">
+    <span class="tpl-banner__dot" aria-hidden="true"></span>
+    <span><strong>ATS Starter</strong> <span class="muted">— open template built on Pagelove</span></span>
+  </span>
+  <span class="tpl-banner__actions">
+    <a class="tpl-banner__btn tpl-banner__btn--ghost" href="/README.html">Getting started</a>
+    <a class="tpl-banner__btn tpl-banner__btn--primary" href="/admin/">Try the ATS →</a>
+  </span>
+</div>
+<main>
+  <header style="margin-bottom: 56px;">
+    <div class="brand">Example Co · Careers</div>
+    <h1>Open roles<em>.</em></h1>
+    <p class="lede">
+      Example Co is hiring. We're a small team building something we care about. If one of these roles fits, we'd love to hear from you.
+    </p>
+  </header>
+
+  <div id="rolesList" class="roles-list">
+    <div class="loading">Loading open roles…</div>
+  </div>
+
+  <section class="how-we-hire">
+    <h2>How we hire<em>.</em></h2>
+    <p>We think the best way to know if we'll work well together is to actually work together. So the last step of our process is a paid trial project.</p>
+
+    <h3>The shape of it</h3>
+    <ol>
+      <li><strong>CV screen.</strong> Always done in pairs to reduce bias as best as possible.</li>
+      <li><strong>30-minute competency interview + 5 minutes for you to ask us about Example Co.</strong> The "tell us about a time…" conversation. We want to hear how you've handled real situations, not how you'd handle hypothetical ones.</li>
+      <li><strong>A one(ish)-hour skills session.</strong> Shaped around the role. If you'd be presenting, you present. If you'd be writing code, we work through a technical problem together. Nothing artificial, just the thing you'd actually do. There might be some prep needed before the conversation – apologies in advance for this, we know it's a pain!</li>
+      <li><strong>Meet the rest of the team.</strong> They'll ask the questions that relate to their role (and how it relates to yours), as well as whether you live our values day-to-day.</li>
+      <li><strong>A paid trial project.</strong> Real work, scoped to a few days, paid at the rate of the role you're applying for. We want to find out whether we enjoy collaborating with you, and whether you enjoy collaborating with us.</li>
+    </ol>
+    <p class="kicker">Then a decision, quickly, in both directions.</p>
+
+    <h3>Why we do it this way</h3>
+    <p>Interviews reward people who are good at interviews. Working together rewards people who are good at the job. That gap has always existed, but AI has widened it. Anyone can produce a polished answer now. What matters is how you actually work.</p>
+    <p>It also gives you a real look at us, which matters, because you're making a bet on us as much as we are on you.</p>
+
+    <h3>On AI</h3>
+    <p>We want you to use it. We're not going to pretend otherwise or ask you to work with one hand tied behind your back.</p>
+    <p>Show us how you use it, where you push back on it, and where you decide it's the wrong tool. That's the job now.</p>
+
+    <h3>Two things we're firm on</h3>
+    <ul>
+      <li>We always pay for the trial, even if you offer to do it for free.</li>
+      <li>We keep the whole process tight, because we know you probably have a job already. If the timing is hard, tell us and we'll work around it.</li>
+    </ul>
+  </section>
+</main>
+
+<footer>PAGELOVE · CAREERS<span class="sep">·</span><a href="/admin/">Internal ATS →</a><span class="sep">·</span><a href="/README.html">Template info</a><span class="sep">·</span><a href="/auth/login">Staff sign-in</a></footer>
+
+<script>
+const $ = (s, root=document) => root.querySelector(s);
+
+function escHtml(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+async function fetchOpenRoles() {
+  const resp = await fetch('/roles.html?t=' + Date.now(), {
+    cache: 'no-store',
+    headers: { 'Range': 'selector=#roles-body', 'Cache-Control': 'no-cache' },
+  });
+  if (!resp.ok) throw new Error('Failed to load (' + resp.status + ')');
+  const html = await resp.text();
+  const tmp = document.createElement('table');
+  tmp.innerHTML = '<tbody>' + html + '</tbody>';
+  return [...tmp.querySelectorAll('tr[id]')]
+    .filter(tr => tr.querySelector('[itemprop="status"]')?.textContent.trim() === 'Open')
+    .map(tr => ({
+      id: tr.id,
+      title: tr.querySelector('[itemprop="title"]')?.textContent.trim() || '',
+      employmentType: tr.querySelector('[itemprop="employmentType"]')?.textContent.trim() || '',
+      location: tr.querySelector('[itemprop="location"]')?.textContent.trim() || '',
+      priority: tr.querySelector('[itemprop="priority"]')?.textContent.trim() || '',
+        slug: tr.querySelector('[itemprop="slug"]')?.textContent.trim() || '',
+      salary: tr.querySelector('[itemprop="salary"]')?.textContent.trim() || '',
+      tldr: tr.querySelector('[itemprop="tldr"]')?.textContent.trim() || '',
+    }));
+}
+
+function renderRoleCard(role) {
+  const metaPills = [
+    role.employmentType,
+    role.location,
+    role.salary,
+  ].filter(Boolean).map(p => `<span class="meta-pill">${escHtml(p)}</span>`).join('');
+  const tldrHtml = role.tldr ? `<p class="role-tldr">${escHtml(role.tldr)}</p>` : '';
+
+  return `<a class="role-card" href="/roles/${encodeURIComponent(role.slug || role.id)}/">
+    <span class="role-arrow" aria-hidden="true">→</span>
+    <h2>${escHtml(role.title)}<em>.</em></h2>
+    ${tldrHtml}
+    <div class="role-meta">${metaPills}</div>
+  </a>`;
+}
+
+(async function init() {
+  const list = $('#rolesList');
+  try {
+    const roles = await fetchOpenRoles();
+    if (roles.length === 0) {
+      list.innerHTML = `<div class="empty-state">
+        <p>No open roles right now.</p>
+        <p style="font-size: 14px;">Drop a speculative note to <a href="mailto:hello@example.com">hello@example.com</a> and we'll keep you in mind.</p>
+      </div>`;
+      return;
+    }
+    list.innerHTML = roles.map(renderRoleCard).join('');
+  } catch (err) {
+    console.error(err);
+    list.innerHTML = `<div class="empty-state">
+      <p>Couldn't load open roles right now.</p>
+      <p style="font-size: 14px;">Try again in a moment, or email <a href="mailto:hello@example.com">hello@example.com</a>.</p>
+    </div>`;
+  }
+})();
+</script>
+
+</body>
+</html>

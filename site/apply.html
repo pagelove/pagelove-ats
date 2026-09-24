@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apply · Example Co</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&amp;family=Inter+Tight:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #111111;
+    --ink-soft: #3d3d3d;
+    --ink-faint: #8a8a8a;
+    --rule: #e5e3de;
+    --paper: #faf8f4;
+    --paper-alt: #f3f0e9;
+    --accent: #c23616;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter Tight', system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    min-height: 100vh;
+    padding: 64px 24px 96px;
+  }
+  main {
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  .brand {
+    font-family: 'Montserrat', system-ui, sans-serif;
+    font-weight: 300;
+    font-size: 13px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 12px;
+  }
+  h1 {
+    font-family: 'Montserrat', system-ui, sans-serif;
+    font-weight: 400;
+    font-size: 56px;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    margin-bottom: 16px;
+  }
+  h1 em { font-style: italic; color: var(--accent); }
+  .lede {
+    font-family: 'Montserrat', system-ui, sans-serif;
+    font-size: 18px;
+    color: var(--ink-soft);
+    margin-bottom: 48px;
+    max-width: 540px;
+    line-height: 1.5;
+  }
+  form { display: flex; flex-direction: column; gap: 28px; }
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-faint);
+  }
+  input[type=text], input[type=email], textarea {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 16px;
+    color: var(--ink);
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--rule);
+    padding: 10px 0;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.15s;
+    text-transform: none;
+    letter-spacing: normal;
+  }
+  textarea {
+    font-family: 'Montserrat', system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    resize: vertical;
+    min-height: 120px;
+  }
+  input:focus, textarea:focus { border-bottom-color: var(--ink); }
+
+  .pill-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .pill {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 13px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--rule);
+    background: transparent;
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: all 0.12s;
+    text-transform: none;
+    letter-spacing: normal;
+  }
+  .pill:hover { border-color: var(--ink); color: var(--ink); }
+  .pill.active {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+
+  /* ========== DROP ZONE ========== */
+  .drop-zone {
+    position: relative;
+    border: 1.5px dashed var(--rule);
+    border-radius: 4px;
+    padding: 28px 24px;
+    text-align: center;
+    background: var(--paper);
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .drop-zone:hover,
+  .drop-zone.dragover {
+    border-color: var(--ink);
+    background: var(--paper-alt);
+  }
+  .drop-zone.has-file {
+    border-style: solid;
+    border-color: var(--ink);
+    background: var(--paper-alt);
+    text-align: left;
+    padding: 18px 22px;
+    cursor: default;
+  }
+  .drop-zone input[type=file] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+  .drop-zone.has-file input[type=file] { display: none; }
+  .drop-msg {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 14px;
+    color: var(--ink-soft);
+    text-transform: none;
+    letter-spacing: normal;
+    line-height: 1.5;
+    pointer-events: none;
+  }
+  .drop-msg strong {
+    color: var(--ink);
+    font-weight: 500;
+    text-decoration: underline;
+    text-decoration-color: var(--rule);
+    text-underline-offset: 3px;
+  }
+  .drop-msg .hint {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-faint);
+    margin-top: 6px;
+    letter-spacing: 0.02em;
+  }
+  .file-chosen {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-family: 'Inter Tight', sans-serif;
+    text-transform: none;
+    letter-spacing: normal;
+  }
+  .file-chosen .file-icon {
+    flex: 0 0 auto;
+    width: 32px; height: 40px;
+    border: 1.5px solid var(--ink);
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 500;
+    color: var(--ink);
+    background: var(--paper);
+    position: relative;
+  }
+  .file-chosen .file-icon::after {
+    content: "";
+    position: absolute;
+    top: 0; right: 0;
+    border-top: 6px solid var(--paper-alt);
+    border-left: 6px solid var(--ink);
+  }
+  .file-chosen .file-meta {
+    flex: 1;
+    min-width: 0;
+  }
+  .file-chosen .file-name {
+    font-size: 14px;
+    color: var(--ink);
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .file-chosen .file-size {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-faint);
+    margin-top: 2px;
+  }
+  .file-chosen .file-remove {
+    background: transparent;
+    border: none;
+    color: var(--ink-faint);
+    cursor: pointer;
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 13px;
+    padding: 6px 10px;
+    text-decoration: underline;
+    text-decoration-color: var(--rule);
+    text-underline-offset: 3px;
+    transition: color 0.12s;
+  }
+  .file-chosen .file-remove:hover { color: var(--accent); }
+  .upload-progress {
+    height: 3px;
+    background: var(--paper);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-top: 10px;
+  }
+  .upload-progress-bar {
+    height: 100%;
+    background: var(--ink);
+    width: 0%;
+    transition: width 0.15s;
+  }
+
+  button[type=submit] {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    padding: 14px 28px;
+    border-radius: 2px;
+    cursor: pointer;
+    align-self: flex-start;
+    margin-top: 12px;
+    letter-spacing: 0.02em;
+  }
+  button[type=submit]:hover { background: var(--ink-soft); }
+  button[type=submit]:disabled {
+    background: var(--ink-faint);
+    cursor: not-allowed;
+  }
+
+  .success {
+    text-align: center;
+    padding: 64px 24px;
+  }
+  .success h2 {
+    font-family: 'Montserrat', system-ui, sans-serif;
+    font-weight: 400;
+    font-size: 32px;
+    margin-bottom: 16px;
+  }
+  .success p {
+    color: var(--ink-soft);
+    font-family: 'Montserrat', system-ui, sans-serif;
+    font-size: 17px;
+    line-height: 1.6;
+  }
+
+  .error {
+    color: var(--accent);
+    font-size: 13px;
+    padding: 12px 16px;
+    border: 1px solid var(--accent);
+    background: rgba(194,54,22,0.08);
+    border-radius: 4px;
+    margin-top: 16px;
+  }
+
+  footer {
+    margin-top: 64px;
+    padding-top: 24px;
+    border-top: 1px solid var(--rule);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--ink-faint);
+    letter-spacing: 0.05em;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<main>
+  <div id="formView">
+    <div class="brand">Example Co · Hiring</div>
+    <h1>Apply<em>.</em></h1>
+    <p class="lede">Tell us about yourself. We read every application personally and reply within two weeks.</p>
+
+    <form id="applyForm">
+      <label>Your full name *
+        <input type="text" name="name" required autocomplete="name">
+      </label>
+
+      <label>Email *
+        <input type="email" name="email" required autocomplete="email">
+      </label>
+
+      <label>Role you're applying for *
+        <div id="rolePills" class="pill-row" data-required="1">
+          <span style="font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--ink-faint);">Loading roles…</span>
+        </div>
+      </label>
+
+      <label>Your CV *
+        <div class="drop-zone" id="cvDrop" data-kind="cv">
+          <input type="file" name="cv" accept=".pdf,.doc,.docx" required>
+          <div class="drop-msg" data-empty>
+            Drop your CV here, or <strong>click to select</strong>.
+            <span class="hint">PDF, DOC, DOCX — up to 5 MB</span>
+          </div>
+        </div>
+      </label>
+
+      <label>Cover letter (optional)
+        <div class="drop-zone" id="coverDrop" data-kind="cover">
+          <input type="file" name="cover" accept=".pdf,.doc,.docx">
+          <div class="drop-msg" data-empty>
+            Drop a cover letter here, or <strong>click to select</strong>.
+            <span class="hint">Optional · PDF, DOC, DOCX — up to 5 MB</span>
+          </div>
+        </div>
+      </label>
+
+      <label>Anything else you'd like us to know?
+        <textarea name="intro" placeholder="Why this role, what excites you, links to past work, anything that helps us understand you."></textarea>
+      </label>
+
+      <button type="submit" id="submitBtn">Submit application</button>
+      <div id="errorBox"></div>
+    </form>
+  </div>
+
+  <div id="successView" class="success" hidden>
+    <h2>Application received<em style="color:var(--accent);">.</em></h2>
+    <p>Thanks for applying. We've logged everything — someone from the hiring team will be in touch within two weeks.</p>
+    <p style="margin-top:24px; font-size:13px; color:var(--ink-faint);" id="ackId"></p>
+  </div>
+</main>
+
+<footer>PAGELOVE · ATS</footer>
+
+<script>
+const $ = (s, root=document) => root.querySelector(s);
+const $$ = (s, root=document) => [...root.querySelectorAll(s)];
+
+function escHtml(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+const params = new URLSearchParams(location.search);
+const presetRole = params.get('role') || '';
+const viaParam = params.get('via') || '';
+const sourceMap = {
+  linkedin: 'LinkedIn',
+  jobboard: 'Job Board',
+  events: 'Events',
+  referral: 'Referral',
+};
+const source = sourceMap[viaParam.toLowerCase()] || 'Inbound';
+
+// ============ Confirmation email via Postmark ============
+// Fill these in from your Postmark dashboard (https://postmarkapp.com/):
+//   1. Pick or create a Server dedicated to the ATS (isolates rate limits & token blast radius)
+//   2. Under that Server → API Tokens, copy the Server API Token
+//   3. Ensure hello@example.com is a verified Sender Signature OR example co.team has DKIM enabled
+//   4. Templates → New Template → paste in your template with the alias 'application-confirmation'
+//      (see POSTMARK_TEMPLATE_SPEC below for the recommended template)
+//   5. Fill in the constants below.
+// Leave the token blank = email sending is skipped silently, application still saves.
+const POSTMARK_SERVER_TOKEN     = '';  // TEMPLATE: no email flow wired. see /outbox/ trigger for server-side sends;                            // e.g. 'a1b2c3d4-e5f6-7890-abcd-ef1234567890'
+const POSTMARK_FROM             = 'hello@example.com';         // must be verified in Postmark
+const POSTMARK_REPLY_TO         = 'hello@example.com';         // where replies land
+const POSTMARK_TEMPLATE_ALIAS   = 'application-confirmation';    // set this on the template in Postmark
+const POSTMARK_MESSAGE_STREAM   = 'outbound';                    // 'outbound' (transactional) is the default stream
+
+/*
+  POSTMARK_TEMPLATE_SPEC
+  ======================
+  Recommended template in the Postmark UI (alias: application-confirmation)
+
+  Subject:  Application received — {{role_title}} at Example Co
+  From:     Example Co Careers <hello@example.com>
+  Reply-To: hello@example.com
+
+  Plain-text body:
+    Hi {{name}},
+
+    Thanks for applying for the {{role_title}} role at Example Co.
+
+    We've logged your application (reference {{candidate_id}}) and someone
+    from the hiring team will be in touch within two weeks.
+
+    If you'd like to add anything in the meantime — links to work you're
+    proud of, questions about the role, whatever — just reply to this email.
+
+    Speak soon,
+    The Example Co team
+
+    —
+    Example Co: web infrastructure for the AI era.
+    https://example co.com
+
+  Postmark uses Mustachio templating; the variables above ({{name}}, {{role_title}},
+  {{candidate_id}}, {{apply_date}}) are the exact keys sent in TemplateModel below.
+
+  SECURITY NOTE: the Server API Token is embedded in this client-side JS, which
+  means a determined attacker who scrapes apply.html can use it to send emails
+  from your verified domain (using ANY template on that Server). Mitigations:
+    - Use a Server dedicated to this app so blast radius is scoped
+    - Set a low daily send limit on that Server
+    - Consider proxying via a Cloudflare Worker or similar if the risk becomes real
+*/
+
+// sendConfirmationEmail removed — client-side Postmark auth is a token-leak vector.
+// TODO: wire server-side confirmation via a Trigger on candidate-row insert (needs Sessel access to request body / new row).
+
+async function fetchOpenRoles() {
+  try {
+    const resp = await fetch('/roles.html', { headers: { 'Range': 'selector=#roles-body' } });
+    if (!resp.ok) throw new Error('Failed to load roles');
+    const html = await resp.text();
+    const tmp = document.createElement('table');
+    tmp.innerHTML = '<tbody>' + html + '</tbody>';
+    return [...tmp.querySelectorAll('tr[id]')]
+      .filter(tr => tr.querySelector('[itemprop="status"]')?.textContent.trim() === 'Open')
+      .map(tr => ({
+        id: tr.id,
+        title: tr.querySelector('[itemprop="title"]')?.textContent.trim() || '',
+        hiringManager: tr.querySelector('[itemprop="hiringManager"]')?.textContent.trim() || '',
+      }));
+  } catch (err) {
+    console.error(err);
+    return [];
+  }
+}
+
+function generateCandidateId() {
+  // Random base36 suffix so we don't need to leak the candidates list to anonymous GET
+  const bytes = new Uint8Array(6);
+  crypto.getRandomValues(bytes);
+  const suffix = Array.from(bytes, b => (b % 36).toString(36)).join('');
+  return 'C-' + suffix;
+}
+
+let selectedRoleId = '';
+let openRoles = [];
+
+function renderRolePills() {
+  const wrap = $('#rolePills');
+  if (openRoles.length === 0) {
+    wrap.innerHTML = '<span style="font-family:\'JetBrains Mono\', monospace; font-size:12px; color:var(--ink-faint);">No open roles right now. Send a speculative note via the message field below.</span>';
+    return;
+  }
+  wrap.innerHTML = openRoles.map(r => `
+    <button type="button" class="pill${r.id === selectedRoleId ? ' active' : ''}" data-role-id="${escHtml(r.id)}">${escHtml(r.title)}</button>
+  `).join('');
+  wrap.querySelectorAll('.pill').forEach(p => {
+    p.addEventListener('click', () => {
+      selectedRoleId = p.dataset.roleId;
+      wrap.querySelectorAll('.pill').forEach(x => x.classList.remove('active'));
+      p.classList.add('active');
+    });
+  });
+}
+
+function renderCandidateRow(c) {
+  const fc = escHtml(c.firstContact);
+  return `<tr id="${escHtml(c.id)}" itemscope itemtype="https://pagelove.org/Candidate">
+    <td class="id" itemprop="id">${escHtml(c.id)}</td>
+    <td><div class="name" itemprop="name">${escHtml(c.name)}</div></td>
+    <td><a href="#${escHtml(c.roleId)}" class="role-link"><span class="role-title">${escHtml(c.roleTitle||'')}</span><span class="role-id" itemprop="roleId">${escHtml(c.roleId)}</span></a></td>
+    <td><span class="stage" itemprop="stage" data-stage="Applied">Applied</span></td>
+    <td><time class="applied-date" datetime="${fc}">${(function(d){if(!d)return '—';var t=new Date(d);if(isNaN(t))return d;return t.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});})(fc)}</time></td>
+    <td class="col-last-activity"><time class="last-activity" datetime>—</time></td>
+    <td hidden><a itemprop="email" href="mailto:${escHtml(c.email)}">${escHtml(c.email)}</a></td>
+    <td hidden itemprop="phone"></td>
+    <td hidden><a itemprop="linkedin" href=""></a></td>
+    <td hidden itemprop="location"></td>
+    <td hidden><time itemprop="firstContact" datetime="${fc}">${fc}</time></td>
+    <td hidden itemprop="salaryExpectation"></td>
+    <td hidden itemprop="noticePeriod"></td>
+    <td hidden itemprop="notes">${escHtml(c.notes||'')}</td>
+    <td hidden><a itemprop="cvLink" href="${escHtml(c.cvLink||'')}">${escHtml(c.cvLink||'')}</a></td>
+    <td hidden><a itemprop="coverLetterLink" href="${escHtml(c.coverLetterLink||'')}">${escHtml(c.coverLetterLink||'')}</a></td>
+    <td hidden itemprop="duplicateOf"></td>
+    <td hidden itemprop="owner">${escHtml(c.owner||'')}</td>
+  </tr>`;
+}
+
+// ============ FILE DROP ZONES ============
+const MAX_UPLOAD = 5 * 1024 * 1024; // 5 MB
+const ALLOWED_EXT = ['pdf','doc','docx'];
+
+const fileState = { cv: null, cover: null };
+
+function formatSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(0) + ' KB';
+  return (bytes / 1024 / 1024).toFixed(1) + ' MB';
+}
+
+function extOf(name) {
+  const m = String(name).match(/\.([a-z0-9]+)$/i);
+  return m ? m[1].toLowerCase() : '';
+}
+
+function renderDropZone(kind) {
+  const zone = document.getElementById(kind + 'Drop');
+  const file = fileState[kind];
+  if (!file) {
+    zone.classList.remove('has-file');
+    const emptyMsg = kind === 'cv'
+      ? 'Drop your CV here, or <strong>click to select</strong>.'
+      : 'Drop a cover letter here, or <strong>click to select</strong>.';
+    const hint = kind === 'cv'
+      ? 'PDF, DOC, DOCX — up to 5 MB'
+      : 'Optional · PDF, DOC, DOCX — up to 5 MB';
+    zone.innerHTML = `
+      <input type="file" name="${kind}" accept=".pdf,.doc,.docx"${kind === 'cv' ? ' required' : ''}>
+      <div class="drop-msg">${emptyMsg}<span class="hint">${hint}</span></div>
+    `;
+    wireZone(zone, kind);
+    return;
+  }
+  zone.classList.add('has-file');
+  const ext = extOf(file.name).toUpperCase() || 'FILE';
+  zone.innerHTML = `
+    <div class="file-chosen">
+      <div class="file-icon">${escHtml(ext)}</div>
+      <div class="file-meta">
+        <div class="file-name">${escHtml(file.name)}</div>
+        <div class="file-size">${formatSize(file.size)}</div>
+      </div>
+      <button type="button" class="file-remove" data-remove="${kind}">Replace</button>
+    </div>
+    <div class="upload-progress" hidden><div class="upload-progress-bar" data-bar="${kind}"></div></div>
+  `;
+  zone.querySelector('[data-remove]').addEventListener('click', (e) => {
+    e.stopPropagation();
+    fileState[kind] = null;
+    renderDropZone(kind);
+  });
+}
+
+function wireZone(zone, kind) {
+  const input = zone.querySelector('input[type=file]');
+  input.addEventListener('change', () => {
+    handleFile(input.files[0], kind);
+  });
+  zone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    zone.classList.add('dragover');
+  });
+  zone.addEventListener('dragleave', (e) => {
+    zone.classList.remove('dragover');
+  });
+  zone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    zone.classList.remove('dragover');
+    const f = e.dataTransfer?.files?.[0];
+    if (f) handleFile(f, kind);
+  });
+}
+
+function handleFile(file, kind) {
+  if (!file) return;
+  if (file.size > MAX_UPLOAD) {
+    showError(`${file.name} is ${formatSize(file.size)} — max is 5 MB.`);
+    return;
+  }
+  if (!ALLOWED_EXT.includes(extOf(file.name))) {
+    showError(`${file.name} — please upload a PDF, DOC, or DOCX.`);
+    return;
+  }
+  fileState[kind] = file;
+  clearError();
+  renderDropZone(kind);
+}
+
+function showError(msg) {
+  $('#errorBox').innerHTML = `<div class="error">${escHtml(msg)}</div>`;
+}
+function clearError() {
+  $('#errorBox').innerHTML = '';
+}
+
+// Wire the drop zones on load
+['cv', 'cover'].forEach(kind => {
+  const zone = document.getElementById(kind + 'Drop');
+  wireZone(zone, kind);
+});
+
+async function uploadFile(candidateId, kind, file) {
+  const ext = extOf(file.name) || 'bin';
+  const path = `/uploads/${candidateId}-${kind}.${ext}`;
+  const resp = await fetch(path, {
+    method: 'PUT',
+    headers: { 'Content-Type': file.type || 'application/octet-stream' },
+    body: file,
+  });
+  if (!resp.ok) throw new Error(`Upload failed (${resp.status})`);
+  return path;
+}
+
+document.getElementById('applyForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const submitBtn = $('#submitBtn');
+  const errorBox = $('#errorBox');
+  errorBox.innerHTML = '';
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Submitting…';
+
+  try {
+    if (!selectedRoleId && openRoles.length > 0) throw new Error('Please pick a role.');
+    const formData = new FormData(e.target);
+    const name = (formData.get('name') || '').trim();
+    const email = (formData.get('email') || '').trim();
+    const intro = (formData.get('intro') || '').trim();
+
+    if (!name || !email) throw new Error('Name and email are required.');
+    if (!fileState.cv) throw new Error('Please attach your CV.');
+
+    const candidateId = generateCandidateId();
+
+    submitBtn.textContent = 'Uploading CV…';
+    const cvUrl = await uploadFile(candidateId, 'cv', fileState.cv);
+
+    let coverUrl = '';
+    if (fileState.cover) {
+      submitBtn.textContent = 'Uploading cover letter…';
+      coverUrl = await uploadFile(candidateId, 'cover', fileState.cover);
+    }
+
+    const role = openRoles.find(r => r.id === selectedRoleId);
+    const today = new Date().toISOString().slice(0,10);
+    const data = {
+      id: candidateId,
+      name,
+      roleId: selectedRoleId || (openRoles[0]?.id || 'R-001'),
+      roleTitle: role?.title || '',
+      email,
+      firstContact: today,
+      owner: role?.hiringManager || 'Unassigned',
+      notes: intro,
+      cvLink: cvUrl,
+      coverLetterLink: coverUrl,
+    };
+    const html = renderCandidateRow(data);
+
+    submitBtn.textContent = 'Saving application…';
+    const resp = await fetch('/admin/index.html', {
+      method: 'POST',
+      headers: { 'Range': 'selector=tbody#candidates-body', 'Content-Type': 'text/html' },
+      body: html,
+    });
+    if (!resp.ok) throw new Error('Submission failed: ' + resp.status + ' ' + (await resp.text()));
+
+    $('#formView').hidden = true;
+    $('#successView').hidden = false;
+
+    // Confirmation email is now a follow-up: send server-side via a Trigger on candidate-row insert.
+    // Kept the reference-id acknowledgement so applicants still see something concrete.
+    $('#ackId').textContent = 'Reference: ' + candidateId;
+  } catch (err) {
+    console.error(err);
+    errorBox.innerHTML = `<div class="error">${escHtml(err.message || err)}</div>`;
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Submit application';
+  }
+});
+
+(async function init() {
+  openRoles = await fetchOpenRoles();
+  if (presetRole && openRoles.find(r => r.id === presetRole)) {
+    selectedRoleId = presetRole;
+  } else if (openRoles.length === 1) {
+    selectedRoleId = openRoles[0].id;
+  }
+  renderRolePills();
+})();
+</script>
+
+
+
+</body></html>

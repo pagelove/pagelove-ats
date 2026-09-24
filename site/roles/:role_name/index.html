@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:example co="https://pagelove.org/1.0" xmlns:p="https://pagelove.org/1.0">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Careers · Example Co</title>
+<meta name="description" content="Example Co is hiring.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&amp;family=Inter+Tight:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --ink: #111111; --ink-soft: #3d3d3d; --ink-faint: #8a8a8a;
+    --rule: #e5e3de; --paper: #faf8f4; --paper-alt: #f3f0e9; --accent: #c23616;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--paper); color: var(--ink); font-family: 'Inter Tight', system-ui, sans-serif; font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  body { min-height: 100vh; padding: 40px 24px 96px; }
+  main { max-width: 720px; margin: 0 auto; }
+
+  .back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink-faint); text-decoration: none; margin-bottom: 40px; transition: color 0.12s; }
+  .back-link:hover { color: var(--ink); }
+  .back-link::before { content: "\2190"; font-family: 'Montserrat', system-ui, sans-serif; font-size: 16px; }
+
+  .brand { font-family: 'Montserrat', system-ui, sans-serif; font-weight: 300; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 12px; }
+  h1 { font-family: 'Montserrat', system-ui, sans-serif; font-weight: 400; font-size: 56px; letter-spacing: -0.02em; line-height: 1; margin-bottom: 20px; color: var(--ink); }
+  .role-tldr { font-family: 'Montserrat', system-ui, sans-serif; font-size: 19px; line-height: 1.5; color: var(--ink-soft); margin-bottom: 32px; max-width: 620px; }
+
+  .role-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 48px; padding-bottom: 32px; border-bottom: 1px solid var(--rule); }
+  .meta-pill { font-size: 12px; padding: 4px 12px; background: var(--paper-alt); border-radius: 999px; color: var(--ink-soft); font-weight: 500; letter-spacing: 0.02em; }
+  .meta-pill.priority { background: rgba(194,54,22,0.1); color: var(--accent); }
+  .meta-pill:empty { display: none; }
+
+  #jd, .jd-raw, .jd { font-family: 'Montserrat', system-ui, sans-serif; font-size: 17px; line-height: 1.65; color: var(--ink); margin-top: 32px; }
+  .jd-raw { white-space: pre-wrap; }
+  .jd h3 { font-family: 'Montserrat', system-ui, sans-serif; font-weight: 400; font-size: 22px; letter-spacing: -0.01em; margin-top: 40px; margin-bottom: 12px; color: var(--ink); }
+  .jd p { margin-bottom: 16px; }
+  .jd ul { list-style: none; padding: 0; margin: 8px 0 20px 0; }
+  .jd li { position: relative; padding-left: 22px; margin-bottom: 12px; font-size: 16px; line-height: 1.6; color: var(--ink-soft); }
+  .jd li::before { content: ""; position: absolute; left: 4px; top: 12px; width: 6px; height: 6px; background: var(--accent); border-radius: 50%; }
+
+  .apply-section { margin-top: 56px; padding: 32px; background: var(--paper-alt); border-radius: 4px; border: 1px solid var(--rule); text-align: center; }
+  .apply-nudge { font-family: 'Montserrat', system-ui, sans-serif; font-size: 17px; color: var(--ink-soft); margin-bottom: 20px; }
+  .apply-btn { display: inline-block; background: var(--ink); color: var(--paper); padding: 14px 32px; font-size: 15px; font-weight: 500; border-radius: 2px; text-decoration: none; letter-spacing: 0.02em; transition: background 0.12s; }
+  .apply-btn:hover { background: var(--ink-soft); }
+
+  footer { margin-top: 96px; padding-top: 24px; border-top: 1px solid var(--rule); font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-faint); letter-spacing: 0.05em; text-align: center; max-width: 720px; margin-left: auto; margin-right: auto; }
+  footer a { color: var(--ink-faint); text-decoration: none; border-bottom: 1px dotted var(--ink-faint); }
+  footer a:hover { color: var(--ink); }
+  footer .sep { margin: 0 10px; opacity: 0.5; }
+
+  .not-found { padding: 80px 20px; text-align: center; color: var(--ink-faint); }
+  .not-found h2 { font-family: 'Montserrat', system-ui, sans-serif; font-weight: 400; font-size: 28px; color: var(--ink-soft); margin-bottom: 12px; }
+
+  @media (max-width: 600px) {
+    body { padding: 32px 20px 64px; }
+    h1 { font-size: 36px; }
+    .role-tldr { font-size: 17px; }
+    .jd h3 { font-size: 20px; margin-top: 36px; }
+    #jd, .jd-raw { font-size: 16px; }
+    .jd li { font-size: 15px; }
+  }
+</style>
+</head>
+
+<body>
+
+<!-- All open-roles data (public composed feed of admin's roles-body).
+     JS below picks out the one matching the URL slug and renders it into #role-view.
+     The full data stays in the DOM (hidden) so crawlers and AI have complete context. -->
+<table id="all-roles-data" hidden><p:include resource="/admin/index.html" selector="#roles-body"></p:include></table>
+
+<main id="role-view">
+  <!-- populated by JS on load -->
+  <div class="not-found" id="role-loading">
+    <h2>Loading role…</h2>
+    <p>If this stays here, the role may have been closed or renamed. <a href="/">See all open roles</a>.</p>
+  </div>
+</main>
+
+<footer>PAGELOVE · CAREERS<span class="sep">·</span><a href="/auth/login">Staff sign-in</a></footer>
+
+<script>
+(function(){
+  function slugFromPath() {
+    var parts = location.pathname.split('/').filter(function(x){return x && x !== 'index.html';});
+    return parts[parts.length - 1] || '';
+  }
+  function readCell(row, prop) {
+    var el = row.querySelector('[itemprop="' + prop + '"]');
+    if (!el) return '';
+    if (el.tagName === 'TIME') return el.getAttribute('datetime') || '';
+    return (el.textContent || '').trim();
+  }
+  function escHtml(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; });
+  }
+  function renderMarkdown(raw) {
+    raw = (raw || '').trim();
+    if (!raw) return '';
+    var lines = raw.split('\n');
+    var html = '';
+    var inList = false;
+    var para = [];
+    function flushP(){ if (para.length) { html += '<p>' + para.join(' ') + '</p>'; para = []; } }
+    function flushList(){ if (inList) { html += '</ul>'; inList = false; } }
+    for (var i = 0; i < lines.length; i++) {
+      var line = lines[i].replace(/\s+$/, '').replace(/^\s+/, '');
+      if (!line) { flushP(); flushList(); continue; }
+      if (line.slice(0, 3) === '## ') { flushP(); flushList(); html += '<h3>' + escHtml(line.slice(3)) + '</h3>'; }
+      else if (line.slice(0, 2) === '- ' || line.slice(0, 2) === '* ') {
+        flushP(); if (!inList) { html += '<ul>'; inList = true; }
+        html += '<li>' + escHtml(line.slice(2)) + '</li>';
+      }
+      else { flushList(); para.push(escHtml(line)); }
+    }
+    flushP(); flushList();
+    return html;
+  }
+
+  var slug = slugFromPath();
+  var rows = document.querySelectorAll('#all-roles-data tr[itemtype]');
+  var match = null;
+  for (var i = 0; i < rows.length; i++) {
+    if (readCell(rows[i], 'slug') === slug) { match = rows[i]; break; }
+  }
+  var view = document.getElementById('role-view');
+  if (!match) {
+    view.innerHTML =
+      '<div class="not-found"><h2>Role not found</h2>' +
+      '<p>This role may have been closed or renamed. <a href="/">See all open roles</a>.</p></div>';
+    return;
+  }
+
+  var role = {
+    id: readCell(match, 'id'),
+    title: readCell(match, 'title'),
+    tldr: readCell(match, 'tldr'),
+    status: readCell(match, 'status'),
+    salary: readCell(match, 'salary'),
+    location: readCell(match, 'location'),
+    employmentType: readCell(match, 'employmentType'),
+    priority: readCell(match, 'priority'),
+    notes: readCell(match, 'notes'),
+    slug: slug,
+  };
+
+  // Redirect closed roles back to the careers landing — the URL still resolves for anyone with the old link.
+  if (role.status && role.status !== 'Open') { location.replace('/'); return; }
+    document.title = role.title + ' \u00b7 Careers \u00b7 Example Co';
+  var metaDesc = document.querySelector('meta[name="description"]');
+  if (metaDesc && role.tldr) metaDesc.setAttribute('content', role.tldr);
+
+  var pills = [];
+  if (role.priority) pills.push('<span class="meta-pill priority">' + escHtml(role.priority) + ' priority</span>');
+  if (role.employmentType) pills.push('<span class="meta-pill">' + escHtml(role.employmentType) + '</span>');
+  if (role.location) pills.push('<span class="meta-pill">' + escHtml(role.location) + '</span>');
+  if (role.salary) pills.push('<span class="meta-pill">' + escHtml(role.salary) + '</span>');
+
+  view.innerHTML =
+    '<a href="/" class="back-link">All open roles</a>' +
+    '<div class="brand">Example Co &middot; Careers</div>' +
+    '<h1>' + escHtml(role.title) + '</h1>' +
+    (role.tldr ? '<p class="role-tldr">' + escHtml(role.tldr) + '</p>' : '') +
+    (pills.length ? '<div class="role-meta">' + pills.join('') + '</div>' : '') +
+    '<div class="jd" id="jd">' + renderMarkdown(role.notes) + '</div>' +
+    '<div class="apply-section">' +
+      '<p class="apply-nudge">Interested? Drop your CV and a short note about why this role.</p>' +
+      '<a class="apply-btn" href="/apply.html?role=' + encodeURIComponent(slug) + '&amp;via=careers">Apply &rarr;</a>' +
+    '</div>';
+})();
+</script>
+
+</body>
+</html>

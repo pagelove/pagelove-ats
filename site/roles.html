@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:p="https://pagelove.org/1.0">
+<head>
+<meta charset="UTF-8">
+<title>Open roles - data</title>
+</head>
+<body>
+<!--
+  Public, composed view of the roles table. The admin (index.html) is private;
+  this page exposes ONLY the roles by including #roles-body from admin/index.html
+  via elevated server-side composition.
+-->
+<table>
+  <p:include resource="/admin/index.html" selector="#roles-body"></p:include>
+</table>
+</body>
+</html>

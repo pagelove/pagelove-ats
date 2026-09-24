@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ATS Starter · getting started</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+  :root { --ink:#111; --ink-soft:#3d3d3d; --ink-faint:#8a8a8a; --rule:#e5e3de; --paper:#faf8f4; --accent:#c23616; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Montserrat',system-ui,sans-serif; max-width:720px; margin:56px auto; padding:0 24px; color:var(--ink); line-height:1.55; background:var(--paper); }
+  h1 { font-size:44px; font-weight:600; letter-spacing:-0.02em; margin-bottom:8px; }
+  .lede { font-size:17px; color:var(--ink-soft); margin-bottom:40px; max-width:600px; }
+  h2 { font-size:22px; font-weight:600; margin-top:48px; margin-bottom:12px; }
+  p { margin-bottom:16px; color:var(--ink-soft); }
+  ol, ul { margin:0 0 20px 24px; }
+  li { margin-bottom:8px; color:var(--ink-soft); }
+  code { font-family:'JetBrains Mono',monospace; font-size:13px; background:#f3f0e9; padding:1px 6px; border-radius:2px; }
+  a { color:var(--accent); text-decoration:none; border-bottom:1px dotted var(--accent); }
+  a:hover { border-bottom-style:solid; }
+  .cta-row { display:flex; gap:12px; flex-wrap:wrap; margin:24px 0 8px; }
+  .cta { display:inline-block; padding:14px 24px; border-radius:3px; font-weight:500; font-size:15px; text-decoration:none; border-bottom:none; }
+  .cta.primary { background:var(--ink); color:var(--paper); }
+  .cta.primary:hover { background:var(--ink-soft); }
+  .cta.secondary { background:var(--paper); color:var(--ink); border:1px solid var(--rule); }
+  .cta.secondary:hover { border-color:var(--ink); }
+  .cta-hint { font-size:12px; color:var(--ink-faint); margin-top:4px; }
+  .banner { padding:16px 20px; background:rgba(194,54,22,0.06); border-left:3px solid var(--accent); font-size:14px; color:var(--ink-soft); margin:16px 0 32px; }
+</style>
+</head>
+<body>
+
+<h1>ATS Starter</h1>
+<p class="lede">An applicant tracking system template built on Pagelove. One HTML file per screen, microdata as the data store, no database, no build step.</p>
+
+<div class="cta-row">
+  <a class="cta primary" href="/admin/">Try the internal ATS →</a>
+  <a class="cta secondary" href="/">See the public careers page</a>
+</div>
+<p class="cta-hint">Both are pre-populated with fictional data (Ada Lovelace, Grace Hopper …). Click around freely.</p>
+
+<div class="banner">
+  <strong>This is a public demo.</strong> The admin at <code>/admin/</code> is open to anyone who has the URL. When you fork this for your own hiring, add OAuth and lock <code>/admin/*</code> to your team's group. Rules scaffolding is already in <a href="/admin/auth.html"><code>/admin/auth.html</code></a> — activate it by adding your emails and enabling <code>default-get-authz-mode: deny</code> on your host.
+</div>
+
+<h2>What's in the box</h2>
+<ul>
+  <li><a href="/">/index.html</a> — public careers page (candidates land here)</li>
+  <li><a href="/apply.html">/apply.html</a> — public application form</li>
+  <li><a href="/roles.html">/roles.html</a> — public read-only roles feed (auto-composed from admin)</li>
+  <li><code>/roles/:role_name/</code> — <a href="/roles/founding-engineer/">example</a>: parameterised route, one file serving every role's public page</li>
+  <li><a href="/admin/">/admin/</a> — the ATS itself: kanban, candidates CRUD, activity log, email templates, CSV-friendly microdata</li>
+  <li><a href="/outbox/index.html">/outbox/index.html</a> — Pagelove Trigger + HttpRequest that relays outbound email to Postmark server-side (drop your token in to enable)</li>
+</ul>
+
+<h2>Make it yours</h2>
+<ol>
+  <li>Fork this project in the Pagelove console</li>
+  <li>Search-and-replace <strong>Example Co</strong> across the files with your brand</li>
+  <li>Open the admin, delete the seeded fake roles + candidates, add your own</li>
+  <li>To enable email sending: paste your Postmark Server API Token into <code>/outbox/index.html</code> (look for the empty <code>&lt;meta itemprop="value" content=""&gt;</code>)</li>
+  <li>To lock down the admin: activate the auth rules in <code>/admin/auth.html</code> and set your host's default GET auth mode to <code>deny</code></li>
+</ol>
+
+<h2>The pipeline stages</h2>
+<p>Candidates move through: <code>Sourced → Applied → Interview 1 → Interview 2 → Interview 3 → Offer → Hired</code>, with terminal states <code>Rejected</code>, <code>Withdrew</code>, <code>Duplicate</code>. Change these in the admin's <code>STAGES</code> constant.</p>
+
+<h2>Credit</h2>
+<p>Built on <a href="https://pagelove.org">Pagelove</a>. Every screen is a single HTML file — the ATS admin, the apply form, the role pages. Data lives as HTML microdata in the same file that renders it.</p>
+
+</body>
+</html>
